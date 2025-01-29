@@ -11,7 +11,7 @@ class BatteryLevelSVF {
  public:
   void run(BladeBase* blade) {}
   int calculate(BladeBase* blade) {
-    return clampi32(battery_monitor.battery_percent() * 32768 / 100, 0, 32768);
+    return clampi32(battery_monitor.battery_percent() * 32768 / 100 + 2500, 0, 32768);
   }
 };
 
