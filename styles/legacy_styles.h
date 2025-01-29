@@ -3,7 +3,7 @@
 
 // This macro has a problem with commas, please don't use it.
 #define EASYBLADE(COLOR, CLASH_COLOR) \
-  SimpleClash<Lockup<Blast<COLOR, WHITE>, AudioFlicker<COLOR, WHITE> >, CLASH_COLOR>
+  SimpleClash<Lockup<Blast<COLOR, CLASH_COLOR>, AudioFlicker<COLOR, CLASH_COLOR> >, CLASH_COLOR>
 
 // Use EasyBlade<COLOR, CLASH_COLOR> instead of EASYBLADE(COLOR, CLASH_COLOR)
 template<class color, class clash_color, class lockup_flicker_color = WHITE>
