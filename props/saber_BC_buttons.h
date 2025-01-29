@@ -248,9 +248,6 @@ Next Preset Fast          - Hold POW and Twist (NOT pointing UP or DOWN).
 Previous Preset Fast      - Hold POW and Twist (while pointing DOWN).
 First Preset Fast         - Hold POW and Twist (while pointing UP).
 
-Battle Mode               - Hold POW + Swing to enter and exit Battle Mode.
-                            * Power OFF is disabled while in Battle Mode. YOU MUST EXIT THE MODE FIRST.
-
 Clash                     - No button, just hit the blade against something.
 Stab                      - Thrust forward with a stabbing motion. Works in Battle Mode.
 Blaster Deflection        - Click or Double click POW.
@@ -263,7 +260,9 @@ Auto Swing Blast          - Swinging within 1 second of doing a button activated
                               To trigger auto blaster blocks, swing saber within 1 second of last block.
                               To exit, stop swinging for 1 second.
                               * Requires #define BC_ENABLE_AUTO_SWING_BLAST.
-Force Effect              - Double Click and Hold POW, release after a second. (Click then Long Click)
+Toggle Battle Mode        - Double Click and Hold POW, release after a second (while pointing UP). (Click then Long Click)
+                            * Power OFF is disabled while in Battle Mode. YOU MUST EXIT THE MODE FIRST.
+Force Effect              - Double Click and Hold POW, release after a second (while NOT pointing UP). (Click then Long Click)
 
 Lockup                    - Hold POW + Clash. Release button to end.
                             * In Battle Mode:
@@ -356,9 +355,9 @@ twist                   - turn blade ON (requires #define BC_TWIST_ON)
                           drag (pointing down)
     then rotate left    - user effect 1 (keep holding POW until executed)
     then rotate right   - user effect 2 (keep holding POW until executed)
-    then swing          - toggle battle mode
 2 clicks                - blaster deflection
-2 clicks long           - force
+2 clicks long           - force (not pointing up)
+                        - toggle battle mode (pointing up)
 2 clicks held           - lightning block (release to end)
 3 clicks                - quote
                           toggle sequential or random quotes (pointing down)
@@ -402,8 +401,7 @@ Prev Preset               - Click AUX (while pointing DOWN).
 Jump to First Preset      - Click AUX (while pointing UP).
 Play/Stop Track           - Long Click then release POW.
 BC Volume Menu:
-        Enter/Exit        - Hold POW + Click AUX.
-        Enter Menu        - Hold POW and Clash.
+        Enter Menu        - Hold POW + Click AUX.
         Volume UP         - Rotate Right.
         Volume DOWN       - Rotate Left.
         Quick MAX Vol     - Hold POW while in Volume Menu.
@@ -443,9 +441,6 @@ Next Preset Fast          - Hold POW and Twist (NOT pointing UP or DOWN).
 Previous Preset Fast      - Hold POW and Twist (while pointing DOWN).
 First Preset Fast         - Hold POW and Twist (while pointing UP).
 
-Battle Mode               - Hold POW + Swing to enter and exit Battle Mode.
-                            * Power OFF is disabled while in Battle Mode. YOU MUST EXIT THE MODE WITH THIS COMBO FIRST.
-
 Clash                     - No buttons, just hit the blade against something.
                             In Battle Mode, Hold any button and Clash to
                             temporarily override the auto-lockup and do regular Clash.
@@ -460,7 +455,9 @@ Auto Swing Blast          - Swinging within 1 second of doing a button activated
                               To trigger auto blaster blocks, swing saber within 1 second of last block.
                               To exit, stop swinging for 1 second.
                               * Requires #define BC_ENABLE_AUTO_SWING_BLAST.
-Force Effect              - Double Click and Hold POW, release after a second. (Click then Long Click)
+Toggle Battle Mode        - Double Click and Hold POW, release after a second (while pointing UP). (Click then Long Click)
+                            * Power OFF is disabled while in Battle Mode. YOU MUST EXIT THE MODE FIRST.
+Force Effect              - Double Click and Hold POW, release after a second (while NOT pointing UP). (Click then Long Click)
 
 Lockup                    - Hold any button + Clash. Release button to end.
                             In Battle Mode:
@@ -561,14 +558,14 @@ Hold POW
                           previous preset fast (pointing down)
     then rotate left    - user effect 1 (keep holding POW until executed)
     then rotate right   - user effect 2 (keep holding POW until executed)
-    then swing          - toggle battle mode
 1 click AUX             - blaster deflection
 1 click AUX held
     then clash          - lockup
     then rotate left    - user effect 3 (keep holding AUX until executed)
     then rotate right   - user effect 4 (keep holding AUX until executed)
 2 clicks POW            - blaster deflection
-2 clicks POW long       - force
+2 clicks POW long       - force (not pointing up)
+                        - toggle battle mode (pointing up)
 2 clicks AUX            - blaster deflection
 3 clicks POW            - quote
                           toggle sequential or random quotes (pointing down)
@@ -709,9 +706,9 @@ push                    - force push
 |                                          Pull away or press POW to end Lockup.
 | Drag                                 - Hold POW then Clash (while pointing Main Blade DOWN). Release button to end.
 | Melt                                 - No button, just stab something with Main Blade. Pull away or press POW to end.
-| Lightning Block                      - Double Click POW. Click to end.
-| Battle Mode                          - Hold POW then Swing to enter and exit Battle Mode.
-|                                        Resets to inactive when either blade shuts OFF.
+| Toggle Battle Mode                   - Double Click POW (while pointing UP) to enter and exit Battle Mode.
+|                                        * Resets to inactive when either blade shuts OFF.
+| Lightning Block                      - Double Click POW (while NOT pointing UP). Click to end.
 | Force Effect                         - Double Click and Hold POW, release after a second (Click then Long Click).
 | Color Change Mode                    - 3x Click and Hold POW to enter ColorChange mode.
 |                                         Rotate hilt to cycle through all available colors, or
@@ -793,8 +790,8 @@ push                    - force push
 |     then clash          - lockup
 |     then rotate left    - user effect 1 (keep holding POW until executed)
 |     then rotate right   - user effect 2 (keep holding POW until executed)
-|     then swing          - toggle battle mode
-| 2 clicks                - lightning block (click to end)
+| 2 clicks                - lightning block (not pointing either blade up).click to end.
+|                         - toggle battle mode (pointing either blade up)
 | 2 clicks long           - force
 | 2 clicks held           - turn second blade OFF
 |                           turn second blade OFF bypass postoff (pointing either blade UP)
@@ -906,9 +903,9 @@ push                    - force push
 | Drag                                 - Hold AUX then Clash (while pointing Main Blade DOWN). Release button to end.
 | Melt                                 - No button, just stab something with Main Blade. Pull away or press a button to end.
 | Lightning Block                      - Hold POW, Click and release AUX (keep holding power to block, release POW to end.
-| Battle Mode                          - Hold POW then Swing to enter and exit Battle Mode.
+| Toggle Battle Mode                   - Double Click and Hold POW, release after a second (while pointing UP). (Click then Long Click)
 |                                        Resets to inactive when either blade shuts OFF.
-| Force Effect                         - Double Click and Hold POW, release after a second. (Click then Long Click)
+| Force Effect                         - Double Click and Hold POW, release after a second (while NOT pointing UP). (Click then Long Click)
 | Color Change Mode                    - 3x Click and Hold POW.
 |                                          Rotate hilt to cycle through all available colors.
 |                                          Click POW to save color selection and Exit.
@@ -965,7 +962,7 @@ push                    - force push
 |     then rotate left    - user effect 7 (keep holding AUX until executed)
 |     then rotate right   - user effect 8 (keep holding AUX until executed)
 | 2 clicks POW            - turn main blade ON first muted
-| 2 clicks held           - blade length edit, or
+| 2 clicks POW held       - blade length edit, or
 |                           OS system menu instead (requires #define MENU_SPEC_TEMPLATE)
 | 2 clicks AUX            - turn second blade ON first muted
 | 2 clicks AUX long       - turn both blades ON
@@ -1001,7 +998,6 @@ push                    - force push
 |     then clash          - lockup
 |     then rotate left    - user effect 1 (keep holding POW until executed)
 |     then rotate right   - user effect 2 (keep holding POW until executed)
-|     then swing          - toggle battle mode
 | 1 click AUX             - turn second blade ON (if main blade is ON), otherwise blaster deflection
 | 1 click AUX held        - turn second blade OFF
 |                           turn second blade OFF bypass postoff (pointing either blade UP)
@@ -1010,7 +1006,8 @@ push                    - force push
 |     then rotate left    - user effect 3 (keep holding AUX until executed)
 |     then rotate right   - user effect 4 (keep holding AUX until executed)
 | 2 clicks POW            - blaster deflection
-| 2 clicks POW long       - force
+| 2 clicks POW long       - force (not pointing up)
+|                         - toggle battle mode (pointing up)
 | 2 clicks AUX            - blaster deflection
 | 2 clicks AUX long       - turn all blades OFF (any remaining blade)
 | 3 clicks POW            - quote
@@ -1150,6 +1147,53 @@ EFFECT(mute);       // Notification before muted ignition to avoid confusion.
 EFFECT(mzoom);      // for Spam Blast enter/exit
 
 template<class SPEC>
+struct BCScrollPresetsMode : public SPEC::SteppedMode {
+  int steps_per_revolution() override {
+    return 12;  // adjust for sensitivity
+  }
+
+  void next() override {
+    beeper.Beep(0.05, 4000);
+    prop_next_preset();
+  }
+
+  void prev() override {
+    beeper.Beep(0.05, 3000);
+    prop_previous_preset();
+  }
+
+  void update() override {  // Overridden to substitute the tick sound
+  }
+
+  void exit() override {
+    PVLOG_NORMAL << "** Exit Scroll Presets\n";
+    beeper.Beep(0.05, 3000);
+    beeper.Silence(0.05);
+    beeper.Beep(0.05, 3000);
+    beeper.Silence(0.05);
+    beeper.Beep(0.10, 2000);
+    SPEC::SteppedMode::exit();
+  }
+
+  // Custom button controls for Scroll Presets mode.
+  bool mode_Event2(enum BUTTON button, EVENT event, uint32_t modifiers) override {
+    switch (EVENTID(button, event, 0)) {
+
+      case EVENTID(BUTTON_POWER, EVENT_FIRST_SAVED_CLICK_SHORT, 0):
+        SaberBase::TurnOn();
+        exit();
+        return true;
+
+      // case EVENTID(BUTTON_POWER, EVENT_SECOND_SAVED_CLICK_SHORT, 0):
+      case EVENTID(BUTTON_POWER, EVENT_FIRST_HELD_MEDIUM, 0):
+        exit();
+        return true;
+    }
+    return false;
+  }
+};
+
+template<class SPEC>
 struct BCVolumeMode : public SPEC::SteppedMode {
   const int max_volume_ = VOLUME;
   const int min_volume_ = VOLUME * 0.10;
@@ -1248,6 +1292,24 @@ struct BCVolumeMode : public SPEC::SteppedMode {
     SPEC::SteppedMode::exit();
   }
 
+  bool Parse(const char *cmd, const char* arg) override {
+    if (PropBase::Parse(cmd, arg)) return true;
+
+    if (!strcmp(cmd, "twist")) {
+        Event(BUTTON_NONE, EVENT_TWIST);
+        return true;
+    }
+    if (!strcmp(cmd, "left")) {
+        Event(BUTTON_NONE, EVENT_TWIST_LEFT);
+        return true;
+    }
+    if (!strcmp(cmd, "right")) {
+        Event(BUTTON_NONE, EVENT_TWIST_RIGHT);
+        return true;
+    }
+    return false;
+  }
+
   bool mode_Event2(enum BUTTON button, EVENT event, uint32_t modifiers) override {
     switch (EVENTID(button, event, 0)) {
       // Custom button controls for BCVolumeMode
@@ -1278,11 +1340,10 @@ struct BCSelectBladeMode : public SPEC::MenuBase {
     mode::getSL<SPEC>()->SaySelectBlade();
     SPEC::SteppedMode::mode_activate(onreturn);
     highlighted_blade_.Start(current_blade());
-    PVLOG_NORMAL << "** Highlighting blade: " << current_blade() << "\n";
+    PVLOG_NORMAL << "** Highlighting blade to edit: " << current_blade() << "\n";
   }
 
   void mode_deactivate() {
-    highlighted_blade_.Stop(current_blade());
     prop_UpdateStyle();
   }
 
@@ -1290,14 +1351,14 @@ struct BCSelectBladeMode : public SPEC::MenuBase {
     highlighted_blade_.Stop(current_blade());
     SPEC::MenuBase::next();
     highlighted_blade_.Start(current_blade());
-    PVLOG_NORMAL << "** Highlighting blade: " << current_blade() << "\n";
+    PVLOG_NORMAL << "** Highlighting blade to edit: " << current_blade() << "\n";
   }
 
   void prev() override {
     highlighted_blade_.Stop(current_blade());
     SPEC::MenuBase::prev();
     highlighted_blade_.Start(current_blade());
-    PVLOG_NORMAL << "** Highlighting blade: " << current_blade() << "\n";
+    PVLOG_NORMAL << "** Highlighting blade to edit: " << current_blade() << "\n";
   }
 
   void say() override {
@@ -1307,8 +1368,10 @@ struct BCSelectBladeMode : public SPEC::MenuBase {
 
   void select() override {
     // Set the current blade to send and push to ChangeBladeLengthMode
+    PVLOG_NORMAL << "** Editing blade length.\n";
     mode::menu_current_blade = current_blade();
     highlighted_blade_.Stop(current_blade());
+    popMode();
     pushMode<typename SPEC::ChangeBladeLengthMode>();
   }
 };
@@ -1322,6 +1385,7 @@ struct BCChangeBladeLengthBlade1 : public mode::ChangeBladeLengthBlade1<SPEC> {
     return 30;  // adjust for sensitivity
   }
   void select() override {
+    PVLOG_NORMAL << "** Saved blade length : " << this->getLength() << "\n";
     prop_SetBladeLength(this->blade(), this->getLength());
     prop_SaveState();
     mode::getSL<SPEC>()->SaySave();
@@ -1339,6 +1403,7 @@ struct BCChangeBladeLengthBlade1 : public mode::ChangeBladeLengthBlade1<SPEC> {
 template<class SPEC>
 struct BCMenuSpec {
   typedef BCVolumeMode<SPEC> BCVolumeMenu;
+  typedef BCScrollPresetsMode<SPEC> BCScrollPresetsMenu;
 #ifdef DYNAMIC_BLADE_LENGTH
   typedef BCSelectBladeMode<SPEC> BCSelectBladeMenu;
   typedef mode::ShowLengthStyle<SPEC> ShowLengthStyle;
@@ -1350,12 +1415,6 @@ struct BCMenuSpec {
   typedef mode::MenuBase<SPEC> MenuBase;
   typedef SoundLibraryV2 SoundLibrary;
 };
-
-#ifndef MENU_SPEC_TEMPLATE
-  void Setup() {
-    MKSPEC<BCMenuSpec>::SoundLibrary::init();
-  }
-#endif
 
 class DelayTimer {
 public:
@@ -1394,9 +1453,15 @@ public:
   SaberBCButtons() : PropBase() {}
   const char* name() override { return "SaberBCButtons"; }
 
+#ifndef MENU_SPEC_TEMPLATE
+  void Setup() override{
+    MKSPEC<BCMenuSpec>::SoundLibrary::init();
+  }
+#endif
+
 #if defined(DYNAMIC_BLADE_LENGTH) && !defined(MENU_SPEC_TEMPLATE)
   void EnterBladeLengthMode() {
-    if (scroll_presets_ || !current_style()) return;
+    if (!current_style()) return;
     if (current_mode == this) {
       sound_library_.SayEditBladeLength();
 
@@ -1411,7 +1476,7 @@ public:
 #endif  // DYNAMIC_BLADE_LENGTH
 
   void EnterVolumeMenu() {
-    if (!current_style() || scroll_presets_) return;
+    if (!current_style()) return;
     if (current_mode == this) {
 #ifdef MENU_SPEC_TEMPLATE
       sound_library_.SayEditVolume();
@@ -1419,6 +1484,15 @@ public:
 #else
       pushMode<MKSPEC<BCMenuSpec>::BCVolumeMenu>();
 #endif
+    }
+  }
+
+  void EnterScrollPresets() {
+    if (current_mode == this) {
+      PVLOG_NORMAL << "** Enter Scroll Presets\n";
+      BeepEnterFeature();
+      scroll_presets_beep_delay_timer_.trigger(350);
+      pushMode<MKSPEC<BCMenuSpec>::BCScrollPresetsMenu>();
     }
   }
 
@@ -1513,7 +1587,7 @@ public:
     }
 #endif
     // Delaying playing font.wav so that beep can be heard first.
-    if (scroll_presets_beep_delay_timer_.isTimerExpired() && scroll_presets_) {
+    if (scroll_presets_beep_delay_timer_.isTimerExpired()) {
         SaberBase::DoEffect(EFFECT_NEWFONT, 0);
     }
     if (twist_delay_timer_.isTimerExpired()) {
@@ -1523,7 +1597,8 @@ public:
 
 #ifdef SPEAK_BLADE_ID
   void SpeakBladeID(float id) override {
-    if (&SFX_mnum) {
+    if (SFX_mnum) {
+      sound_library_v2.SayBlade();
       sound_library_.SayNumber(id, SAY_WHOLE);
     } else {
       PVLOG_NORMAL << "** No mnum.wav number prompts found.\n";
@@ -1622,7 +1697,6 @@ public:
 
   // Previous, next, or first preset, depending on blade angle
   void DoChangePreset() {
-    if (scroll_presets_) return;
     if (fusor.angle1() > M_PI / 3) {
     // Main Blade pointing UP
       first_preset();
@@ -1660,7 +1734,6 @@ public:
   }
 
   void DoSpokenBatteryLevel() {
-    if (scroll_presets_) return;
     // Avoid weird battery readings when using USB
     if (battery_monitor.battery() < 0.5) {
       sound_library_.SayTheBatteryLevelIs();
@@ -1685,14 +1758,13 @@ public:
   }
 
   void OnDemandBatteryLevel() {
-    if (scroll_presets_) return;
     PVLOG_NORMAL << "Battery Voltage: " << battery_monitor.battery() << "\n";
     PVLOG_NORMAL << "Battery Percentage: " <<battery_monitor.battery_percent() << "\n";
     SaberBase::DoEffect(EFFECT_BATTERY_LEVEL, 0);
   }
 
   void DoTrackStartOrStop() {
-    if (scroll_presets_ || spam_blast_) return;
+    if (spam_blast_) return;
     PVLOG_NORMAL << "** Track playback Toggled\n";
     StartOrStopTrack();
   }
@@ -1743,13 +1815,14 @@ public:
   }
 
   void DoQuote() {
-    if (scroll_presets_ || spam_blast_) return;
-    if (overlap_timer_initialized_ && !overlap_delay_timer_.isTimerExpired()) return;  // prevent overlapping.
-    overlap_timer_initialized_ = true;
+    if (spam_blast_) return;
     if (SFX_quote) {
+      if (GetWavPlayerPlaying(&SFX_quote)) return;  // Simple prevention of quote overlap
+
       sequential_quote_ ? SFX_quote.SelectNext() : SFX_quote.Select(-1);
       SaberBase::DoEffect(EFFECT_QUOTE, 0);
     } else {
+      if (GetWavPlayerPlaying(&SFX_force)) return;
       SaberBase::DoForce();
     }
   }
@@ -1761,7 +1834,7 @@ public:
   }
 
   void ToggleSequentialQuote() {
-    if (scroll_presets_ || spam_blast_) return;
+    if (spam_blast_) return;
     sequential_quote_ = !sequential_quote_;
     PVLOG_NORMAL << (sequential_quote_ ? "** Quotes play sequentially\n" : "** Quotes play randomly\n");
     if (SFX_mnum) {
@@ -1984,24 +2057,6 @@ public:
       case EVENTID(BUTTON_AUX2, EVENT_PRESSED, MODE_ON):
         return true;
 
-// Volume Up
-// Scroll Presets Next
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF):
-        if (scroll_presets_) {
-          beeper.Beep(0.05, 4000);
-          next_preset();
-        }
-        return true;
-
-// Volume Down
-// Scroll Presets Previous
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF):
-        if (scroll_presets_) {
-          beeper.Beep(0.05, 3000);
-          previous_preset();
-        }
-        return true;
-
 /*
 Case structure below
 1btn
@@ -2073,12 +2128,17 @@ any # of buttons
         return true;
 
 // Lightning Block (Double Click POW to start, Click POW to Stop)
+// Toggle Battle Mode
       case EVENTID(BUTTON_POWER, EVENT_SECOND_SAVED_CLICK_SHORT, MODE_ON):
-        if (!isSecondBladeOn() && !on_pending_) {
-          TurnBladeOn(BC_SECOND_BLADE_SET);
-          return true;
+        if (isPointingUp()) {
+          ToggleBattleMode();
         } else {
-          DoLightningBlock();
+          if (!isSecondBladeOn() && !on_pending_) {
+            TurnBladeOn(BC_SECOND_BLADE_SET);
+            return true;
+          } else {
+            DoLightningBlock();
+          }
         }
         return true;
 
@@ -2435,7 +2495,6 @@ any # of buttons
 
 #ifdef BC_TWIST_ON
       case EVENTID(BUTTON_NONE, EVENT_TWIST, MODE_OFF):
-        if (scroll_presets_) return false;
         NoBladeDisableGestures();
         // Delay twist events to prevent false trigger from over twisting
         if (millis() - last_twist_millis_ > 300 &&
@@ -2499,18 +2558,9 @@ any # of buttons
 #endif
         return true;
 
-// Toggle Scroll Presets
-      case EVENTID(BUTTON_POWER, EVENT_FIRST_HELD_MEDIUM, MODE_OFF):
-        scroll_presets_ = !scroll_presets_;
-        if (scroll_presets_) {
-          PVLOG_NORMAL << "** Enter Scroll Presets\n";
-          BeepEnterFeature();
-          scroll_presets_beep_delay_timer_.trigger(350);
-        } else {
-          PVLOG_NORMAL << "** Exit Scroll Presets\n";
-          BeepExitFeature();
-          // No need to play font.wav again when exiting
-        }
+// Enter Scroll Presets
+      case EVENTID(BUTTON_POWER, EVENT_FIRST_HELD_LONG, MODE_OFF):
+        EnterScrollPresets();
         return true;
 
 // Auto Swing Blast
@@ -2527,16 +2577,18 @@ any # of buttons
 #endif
 
 // Force
-      case EVENTID(BUTTON_POWER, EVENT_SECOND_CLICK_LONG, MODE_ON):
-        if ((spam_blast_ || on_pending_) || (overlap_timer_initialized_ && !overlap_delay_timer_.isTimerExpired())) return false;
-        SaberBase::DoForce();
-        overlap_timer_initialized_ = true;
-        return true;
-
 // Toggle Battle Mode
-      case EVENTID(BUTTON_NONE, EVENT_SWING, MODE_ON | BUTTON_POWER):
-        ToggleBattleMode();
+#if (NUM_BUTTONS != 1) || !defined(BC_DUAL_BLADES)  // 1 btn with dual blades has different control
+      case EVENTID(BUTTON_POWER, EVENT_SECOND_CLICK_LONG, MODE_ON):
+        if (spam_blast_ || on_pending_) return false;
+        if (isPointingUp()) {
+          ToggleBattleMode();
+        } else {
+          if (GetWavPlayerPlaying(&SFX_force)) return false;  // Simple prevention of force overlap
+          SaberBase::DoForce();
+        }
         return true;
+#endif
 
   // Auto Lockup Mode
       case EVENTID(BUTTON_NONE, EVENT_CLASH, MODE_ON):
@@ -2590,49 +2642,41 @@ any # of buttons
 
 // User Effects a.k.a. "Special Abilities" ©Fett263
       case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_POWER):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER1 **\n";
         SaberBase::DoEffect(EFFECT_USER1, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_POWER):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER2 **\n";
         SaberBase::DoEffect(EFFECT_USER2, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_AUX):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER3 **\n";
         SaberBase::DoEffect(EFFECT_USER3, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_AUX):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER4 **\n";
         SaberBase::DoEffect(EFFECT_USER4, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_POWER):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER5 **\n";
         SaberBase::DoEffect(EFFECT_USER5, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_POWER):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER6 **\n";
         SaberBase::DoEffect(EFFECT_USER6, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_AUX):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER7 **\n";
         SaberBase::DoEffect(EFFECT_USER7, 0);
         return true;
 
       case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_AUX):
-        if (scroll_presets_) return false;
         PVLOG_DEBUG << "**** EFFECT_USER8 **\n";
         SaberBase::DoEffect(EFFECT_USER8, 0);
         return true;
@@ -2702,7 +2746,6 @@ any # of buttons
         }
         return;
       case EFFECT_IGNITION:
-        scroll_presets_ = false;
         saber_on_time_ = millis();
         return;
       case EFFECT_TRANSITION_SOUND: 
@@ -2711,15 +2754,6 @@ any # of buttons
 
     }
   }  // SB_Effect
-
-  void SB_Effect2(EffectType effect, EffectLocation location) override {
-    switch (effect) {
-      case EFFECT_QUOTE:
-      case EFFECT_FORCE:
-        overlap_delay_timer_.trigger(SaberBase::sound_length * 1000);
-        return;
-     }
-  }  // SB_Effect2
 
   void Clash2(bool stab, float strength) override {
     SaberBase::SetClashStrength(strength);
@@ -2748,7 +2782,6 @@ private:
   DelayTimer mute_mainBlade_delay_timer_;
   DelayTimer mute_secondBlade_delay_timer_;
   DelayTimer scroll_presets_beep_delay_timer_;
-  DelayTimer overlap_delay_timer_;
   DelayTimer twist_delay_timer_;
 
   float current_twist_angle_ = 0.0;
@@ -2759,10 +2792,8 @@ private:
   bool sequential_quote_ = false;
   bool spam_blast_ = false;
   bool speaking_ = false;  // Don't play battery.wav when doing Spoken Battery Level
-  bool scroll_presets_ = false;
   bool muted_ = false;
   bool forward_stab_ = false;
-  bool overlap_timer_initialized_ = false;
 
   uint32_t thrust_begin_millis_ = millis();
   uint32_t push_begin_millis_ = millis();
