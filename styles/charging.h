@@ -20,6 +20,7 @@ public:
       Color8(0,255,0),   // Green > 4.0
       Color8(0,0,255),
       Color8(255,128,0),
+      Color8(255,64,0),
       Color8(255,0,0),
       Color8(255,0,0) 
     };
@@ -37,7 +38,11 @@ public:
     float max_volts = 4.2;
     float pos = (volts - min_volts) * num_leds / (max_volts - min_volts);
     int p = pos * 32;
-    for (int i = 0; i < num_leds; i++) {
+    // Always light up the first 16 LEDs (for the emitter)
+    for (int i = 0; i < 16; i++) {
+      blade->set(i, Color16(c));
+    }
+    for (int i = 16; i < num_leds; i++) {
       blade->set(i, Color16(Color8().mix(c, std::max(0, 256 - abs(p - i * 32)))));
     }
   };
