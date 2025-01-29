@@ -44,6 +44,8 @@ typedef Rgb<255, 91, 50> LightSalmon;
 typedef Rgb<255, 255, 191> LightYellow;
 typedef Rgb<0, 255, 0> Lime;
 typedef Rgb<255, 0, 255> Magenta;
+typedef Rgb<96,0,255> Purple;
+typedef Rgb<128,36,255> Blurple;
 typedef Rgb<233, 255, 244> MintCream;
 typedef Rgb<255, 199, 193> MistyRose;
 typedef Rgb<255, 199, 119> Moccasin;
