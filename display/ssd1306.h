@@ -22,7 +22,7 @@ struct DisplayConfigFile : public ConfigFile {
     CONFIG_VARIABLE2(ProffieOSPstoffImageDuration, 2000.0f);
     CONFIG_VARIABLE2(ProffieOSOnImageDuration, 5000.0f);
   }
-  
+
   // For OLED displays, this specifies the frame rate of animations.
   float ProffieOSAnimationFrameRate;
   // for OLED displays, the time a text message will display
@@ -47,52 +47,24 @@ struct DisplayConfigFile : public ConfigFile {
   float ProffieOSBootImageDuration;
 };
 
-struct BlasterDisplayConfigFile : public ConfigFile {
-  BlasterDisplayConfigFile() { link(&font_config); }
-  void iterateVariables(VariableOP *op) override {
-    CONFIG_VARIABLE2(ProffieOSFireImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSReloadImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSEmptyImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSJamImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSClipinImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSClipoutImageDuration, 1000.0f);
-    CONFIG_VARIABLE2(ProffieOSDestructImageDuration, 10000.0f);
-  }
-  
-  // for OLED displays, the time a blast.bmp will play
-  float ProffieOSFireImageDuration;
-  // for OLED displays, the time a reload.bmp will play
-  float ProffieOSReloadImageDuration;
-  // for OLED displays, the time a empty.bmp will play
-  float ProffieOSEmptyImageDuration;
-  // for OLED displays, the time a jam.bmp will play
-  float ProffieOSJamImageDuration;
-  // for OLED displays, the time a clipin.bmp will play
-  float ProffieOSClipinImageDuration;
-  // for OLED displays, the time a clipout.bmp will play
-  float ProffieOSClipoutImageDuration;
-  // for OLED displays, the time a destruct.bmp will play
-  float ProffieOSDestructImageDuration;
-};
-
-
-
 #define INIT_IMG(X, ARGS...) ,IMG_##X(ConcatByteArrays<PREFIX, STRTYPE(#X)>::str, nullptr, Effect::FileType::IMAGE)
 #define DEF_IMG(X, ARGS...) Effect IMG_##X;
 
-#define ONCE_PER_EFFECT(X)			\
-  X(boot)					\
-  X(font)					\
-  X(blst)					\
-  X(clsh)					\
-  X(force)					\
-  X(preon)					\
-  X(out)					\
-  X(in)						\
-  X(pstoff)					\
-  X(on)						\
-  X(lock)					\
-  X(idle)                                       \
+#define ONCE_PER_EFFECT(X)       \
+  X(boot)                        \
+  X(font)                        \
+  X(bladein)                     \
+  X(bladeout)                    \
+  X(blst)                        \
+  X(clsh)                        \
+  X(force)                       \
+  X(preon)                       \
+  X(out)                         \
+  X(in)                          \
+  X(pstoff)                      \
+  X(on)                          \
+  X(lock)                        \
+  X(idle)                        \
   X(lowbatt)
 
 template<typename PREFIX = ByteArray<>>
@@ -100,22 +72,6 @@ struct DisplayEffects {
   DisplayEffects() :  dummy_(0) ONCE_PER_EFFECT(INIT_IMG) {}
   int dummy_;
   ONCE_PER_EFFECT(DEF_IMG)
-};
-
-#define ONCE_PER_BLASTER_EFFECT(X)		\
-  X(blast)					\
-  X(reload)					\
-  X(empty)					\
-  X(jam)					\
-  X(clipin)					\
-  X(clipout)					\
-  X(destruct)
-
-template<typename PREFIX = ByteArray<>>
-struct BlasterDisplayEffects  {
-  BlasterDisplayEffects() : dummy_(0) ONCE_PER_BLASTER_EFFECT(INIT_IMG) {}
-  int dummy_;
-  ONCE_PER_BLASTER_EFFECT(DEF_IMG)
 };
 
 enum Screen {
@@ -146,7 +102,6 @@ public:
   virtual int FillFrameBuffer(bool advance) = 0;
   virtual void SetDisplay(Display<Width, col_t>* display) = 0;
   virtual Screen GetScreen() { return SCREEN_UNSET; }
-  virtual void usb_connected() {}
 };
 
 template<int Width, class col_t>
@@ -176,7 +131,6 @@ public:
     a->SetDisplay(display);
   }
   Screen GetScreen() { return a->GetScreen(); }
-  void usb_connected() { return a->usb_connected(); }
   void Advance(int t) { t_ -= t; }
 };
 
@@ -222,11 +176,6 @@ public:
     }
     return SCREEN_UNSET;
   }
-  void usb_connected() override {
-    for (size_t i = 0; i < sizeof...(OPERATIONS); i++) {
-      operations_[i].usb_connected();
-    }
-  }
 
   int FillFrameBuffer(bool advance) override {
     for (size_t i = 0; i < sizeof...(OPERATIONS); i++) {
@@ -239,7 +188,6 @@ public:
     return last_t_;
   }
 };
-
 
 // Operations
 
@@ -407,15 +355,7 @@ public:
     return last_delay_ = FillFrameBuffer2(advance);
   }
 
-#ifdef USB_CLASS_MSC
-  bool EscapeIdleIfNeeded() {
-    return looped_idle_ == Tristate::True && USBD_Configured();
-  }
-#else
-  bool EscapeIdleIfNeeded() { return false; }
-#endif
-
-  void ShowDefault(bool ignore_lockup = false) {
+  virtual void ShowDefault(bool ignore_lockup = false) {
     screen_ = SCREEN_PLI;
     t_ = 0;
     if (SaberBase::IsOn()) {
@@ -427,8 +367,8 @@ public:
     } else {
       // Off
       if (looped_idle_ != Tristate::False) {
-        if (EscapeIdleIfNeeded()) {
-          SetMessage("    usb\nconnected");
+        if (AvoidIdleSDAccess()) {
+          SetMessage("    sd\n  access");
         } else {
           SetFile(&img_.IMG_idle, 3600000.0);
         }
@@ -488,19 +428,19 @@ public:
 
       case SCREEN_ERROR_MESSAGE:
       case SCREEN_MESSAGE: {
-	uint32_t t;
+        uint32_t t;
         if (font_config.ProffieOSTextMessageDuration != -1) {
-	  t = font_config.ProffieOSTextMessageDuration;
+          t = font_config.ProffieOSTextMessageDuration;
         } else if (font_config.ProffieOSFontImageDuration > 0) {
-	  t = font_config.ProffieOSFontImageDuration;
+          t = font_config.ProffieOSFontImageDuration;
         } else {
-	  t = 3500;
+          t = 3500;
         }
-	if (t_ >= t) {
-	  screen_ = SCREEN_DEFAULT;
-	  ShowDefault();
-	  return FillFrameBuffer2(advance);
-	}
+        if (t_ >= t) {
+          screen_ = SCREEN_DEFAULT;
+          ShowDefault();
+          return FillFrameBuffer2(advance);
+        }
         Clear();
         // Aurebesh Font option.
 #ifdef USE_AUREBESH_FONT
@@ -518,11 +458,6 @@ public:
       }
 
       case SCREEN_IMAGE:
-        if (EscapeIdleIfNeeded() && current_effect_ == &img_.IMG_idle) {
-          // We are idle-looping, and usb is connected. Time to stop.
-          SetMessage("    usb\nconnected");
-          return FillFrameBuffer2(advance);
-        }
         MountSDCard();
         {
           int count = 0;
@@ -585,14 +520,6 @@ public:
     }
   }
 
-  void usb_connected() override {
-    if (EscapeIdleIfNeeded() && current_effect_ == &img_.IMG_idle) {
-      // We are idle-looping, and usb is connected. Time to stop.
-      SetMessage("    usb\nconnected");
-      SetScreenNow(SCREEN_MESSAGE);
-    }
-  }
-
   void ShowFileWithSoundLength(Effect* e, float duration) {
     if (duration == 0.0) {
       duration = SaberBase::sound_length * 1000;
@@ -602,16 +529,33 @@ public:
 
  void SB_Effect2(EffectType effect, EffectLocation location) override {
    switch (effect) {
-     case EFFECT_NEWFONT:
+     case EFFECT_CHDIR:
        looped_on_ = Tristate::Unknown;
        looped_idle_ = Tristate::Unknown;
+       break;
+       
+     case EFFECT_BLADEOUT:
+       if (img_.IMG_bladeout) {
+         ShowFileWithSoundLength(&img_.IMG_bladeout, font_config.ProffieOSFontImageDuration);
+         break;
+       }
+       goto show_font;
+     case EFFECT_BLADEIN:
+       if (img_.IMG_bladein) {
+         ShowFileWithSoundLength(&img_.IMG_bladein, font_config.ProffieOSFontImageDuration);
+         break;
+       }
+     case EFFECT_NEWFONT:
+     show_font:
        if (img_.IMG_font) {
-	 ShowFileWithSoundLength(&img_.IMG_font, font_config.ProffieOSFontImageDuration);
-       } else if (prop.current_preset_name()) {
-	 SetMessage(prop.current_preset_name());
-	 SetScreenNow(SCREEN_MESSAGE);
+         ShowFileWithSoundLength(&img_.IMG_font, font_config.ProffieOSFontImageDuration);
+         break;
+       }
+       if (prop.current_preset_name()) {
+         SetMessage(prop.current_preset_name());
+         SetScreenNow(SCREEN_MESSAGE);
        } else if (img_.IMG_idle) {
-	 ShowFile(&img_.IMG_idle, 3600000.0);
+         ShowFile(&img_.IMG_idle, 3600000.0);
        }
        break;
      case EFFECT_LOCKUP_BEGIN:
@@ -627,31 +571,37 @@ public:
      case EFFECT_SD_CARD_NOT_FOUND:
        SetErrorMessage("sd card\nnot found");
        break;
-     case EFFECT_ERROR_IN_FONT_DIRECTORY:
-       SetErrorMessage("err font\ndirectory");
+     case EFFECT_FONT_DIRECTORY_NOT_FOUND:
+       SetErrorMessage("font dir\nnot found");
+       break;
+     case EFFECT_VOICE_PACK_NOT_FOUND:
+       SetErrorMessage("voice pack\nnot found");
        break;
      case EFFECT_ERROR_IN_BLADE_ARRAY:
        SetErrorMessage("err blade\narray");
        break;
-     case EFFECT_FONT_DIRECTORY_NOT_FOUND:
-       SetErrorMessage("font dir\nnot found");
+     case EFFECT_ERROR_IN_FONT_DIRECTORY:
+       SetErrorMessage("err font\ndirectory");
+       break;
+     case EFFECT_ERROR_IN_VOICE_PACK_VERSION:
+       SetErrorMessage("err voice\npack ver");
        break;
      case EFFECT_LOW_BATTERY:
        // Maybe we should make this blink or something?
        if (img_.IMG_lowbatt) {
-	 ShowFile(&img_.IMG_lowbatt, 5000);
+         ShowFile(&img_.IMG_lowbatt, 5000);
        } else {
-	 SetErrorMessage("low\nbattery");
+         SetErrorMessage("low\nbattery");
        }
        break;
      case EFFECT_BOOT:
        if (img_.IMG_boot) {
-	 ShowFileWithSoundLength(&img_.IMG_boot,
-				 font_config.ProffieOSBootImageDuration != -1.0 ?
-				 font_config.ProffieOSBootImageDuration :
-				 font_config.ProffieOSFontImageDuration);
+         ShowFileWithSoundLength(&img_.IMG_boot,
+                                 font_config.ProffieOSBootImageDuration != -1.0 ?
+                                 font_config.ProffieOSBootImageDuration :
+                                 font_config.ProffieOSFontImageDuration);
        } else {
-	 SetScreenNow(SCREEN_STARTUP);
+         SetScreenNow(SCREEN_STARTUP);
        }
        break;
      case EFFECT_BLAST:
@@ -698,7 +648,11 @@ public:
     } else if (img_.IMG_in) {
       ShowFileWithSoundLength(&img_.IMG_in, font_config.ProffieOSInImageDuration);
     } else if (img_.IMG_idle) {
-      ShowFile(&img_.IMG_idle, 3600000.0);
+      if (AvoidIdleSDAccess()) {
+        SetMessage("    sd\n  access");
+      } else {
+        SetFile(&img_.IMG_idle, 3600000.0);
+      }
     } else {
       SetScreenNow(SCREEN_PLI);
     }
@@ -904,7 +858,7 @@ public:
       bool tmp = ReadImage(&file_);
       uint32_t read_us = micros() - read_begin;
       if (read_us > 1500) {
-	STDERR << "ReadImage took " << read_us << " us\n";
+        STDERR << "ReadImage took " << read_us << " us\n";
       }
 #else
       bool tmp = ReadImage(&file_);
@@ -971,49 +925,6 @@ private:
   volatile Effect* current_effect_;
 };
 
-template<int Width, class col_t, typename PREFIX = ByteArray<>>
-class BlasterDisplayController : public StandardDisplayController<Width, col_t, PREFIX> {
-public:
-  BlasterDisplayEffects<PREFIX> img_;
-  BlasterDisplayConfigFile &blaster_font_config;
-  BlasterDisplayController() :
-    img_(*getPtr<BlasterDisplayEffects<PREFIX>>()),
-    blaster_font_config(*getPtr<BlasterDisplayConfigFile>()) {
-  }
-
-  void SB_Effect2(EffectType effect, EffectLocation location) override {
-    switch (effect) {
-      case EFFECT_FIRE:
-	ShowFileWithSoundLength(img_.IMG_blast, blaster_font_config.ProffieOSFireImageDuration);
-	break;
-      case EFFECT_RELOAD:
-	ShowFileWithSoundLength(img_.IMG_reload, blaster_font_config.ProffieOSReloadImageDuration);
-	break;
-      case EFFECT_EMPTY:
-	ShowFileWithSoundLength(img_.IMG_empty, blaster_font_config.ProffieOSEmptyImageDuration);
-	break;
-      case EFFECT_JAM:
-	ShowFileWithSoundLength(img_.IMG_jam, blaster_font_config.ProffieOSJamImageDuration);
-	break;
-      case EFFECT_CLIP_IN:
-	ShowFileWithSoundLength(img_.IMG_clipin, blaster_font_config.ProffieOSClipinImageDuration);
-	break;
-      case EFFECT_CLIP_OUT:
-	ShowFileWithSoundLength(img_.IMG_clipout, blaster_font_config.ProffieOSClipoutImageDuration);
-	break;
-      default:
-	StandardDisplayController<Width, col_t, PREFIX>::SB_Effect2(effect, location);
-    }
-  }
-  
-  void SB_Off2(typename StandardDisplayController<Width, col_t, PREFIX>::OffType offtype, EffectLocation location) override {
-    if (offtype == StandardDisplayController<Width, col_t, PREFIX>::OFF_BLAST) {
-      ShowFileWithSoundLength(img_.IMG_destruct, blaster_font_config.ProffieOSDestructImageDuration);
-    } else {
-      StandardDisplayController<Width, col_t, PREFIX>::SB_Off2(offtype, location);
-    }
-  }
-};
 
 template<template<int, class, class> class T, typename PREFIX = ByteArray<>>
 struct BaseLayerOp {
@@ -1117,17 +1028,10 @@ public:
   // TODO: Don't update the display when we don't need to
   // and return false here so that we can go into lower power modes.
   void SB_IsOn(bool* on) override {
-    *on = on_;
+    if (on_) *on = true;
   }
 
   void Loop() override {
-#ifdef USB_CLASS_MSC
-    static bool last_connected = false;
-    bool connected = USBD_Configured();
-    if (connected && !last_connected) controller_->usb_connected();
-    last_connected = connected;
-#endif
-
     STATE_MACHINE_BEGIN();
     while(true) {
       on_ = true;

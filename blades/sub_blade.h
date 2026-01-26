@@ -29,6 +29,10 @@ Usage: SubBladeWithStride(first_led, last_led, stride_length, blade_definition)
 Like SubBlade, but LEDs are indexed with an additional 'stride' parameter,
 allowing you to "skip" over a regular number of pixels in the data chain. (Such as every other one)
 
+Usage: SubBladeWithList<int1, int2, ...>(blade_definition)
+Like SubBlade, but you provide a custom list of LED indices instead of a range.
+Useful for ring-based or irregular LED layouts.
+
 For more in-depth explanations, see the SubBlade Wiki pages here:
 https://github.com/profezzorn/ProffieOS/wiki/SubBlade
 https://github.com/profezzorn/ProffieOS/wiki/SubBladeReverse
@@ -68,9 +72,11 @@ public:
       if (!SomeSubBladeIsActive()) BladeWrapper::Deactivate();
     }
   }
-  virtual bool primary() const {
-    return !offset_;
+
+  bool primary() const {
+    return primary_;
   }
+
   void clear() override {
     if (primary()) BladeWrapper::clear();
   }
@@ -105,6 +111,7 @@ public:
 
   void SetNext(SubBladeWrapper* next) {
     next_ = next;
+    if (next_ == this) primary_ = true;
   }
 
   // Bladestyle implementation
@@ -154,6 +161,7 @@ protected:
   bool allow_disable_;
   SubBladeWrapper* next_;
   int blade_number_;
+  bool primary_ = false;
 };
 
 SubBladeWrapper* first_subblade_wrapper = NULL;
@@ -185,9 +193,6 @@ class BladeBase* SubBlade(int first_led, int last_led, BladeBase* blade) {
 }
 
 class SubBladeWrapperReverse : public SubBladeWrapper {
- virtual bool primary() const override {
-    return offset_ + 1 == num_leds_;
-  }
   void set(int led, Color16 c) override {
     return blade_->set(offset_ - led, c);
   }
@@ -271,9 +276,6 @@ public:
   int translate(int led) const {
     return offset_ + led * stride_ + ((led & 1) ? col_ : (stride_ - 1 - col_));
   }
- virtual bool primary() const override {
-   return translate(0) == 0;
- }
   void set(int led, Color16 c) override {
     return blade_->set(translate(led), c);
   }
@@ -309,6 +311,58 @@ class BladeBase* SubBladeZZ(int first_led, int last_led, int stride, int column,
   ret->SetCol(column);
   ret->SetupSubBlade(blade, first_led, (last_led - first_led)/stride + 1);
   return ret;
+}
+
+class SubBladeWrapperWithList : public SubBladeWrapper {
+public:
+  SubBladeWrapperWithList(const int* indices, int count)
+      : indices_(indices), count_(count) {}
+  void set(int led, Color16 c) override {
+    if (led >= 0 && led < count_ && indices_[led] >= 0) {
+      blade_->set(indices_[led], c);
+    }
+  }
+  void set_overdrive(int led, Color16 c) override {
+    if (led >= 0 && led < count_ && indices_[led] >= 0) {
+      blade_->set_overdrive(indices_[led], c);
+    }
+  }
+
+  int num_leds() const override { return count_; }
+
+protected:
+  const int* indices_;
+  int count_;
+};
+
+BladeBase* SubBladeWithList(const int* indices, int count, BladeBase* blade) {
+  if (blade) {
+    first_subblade_wrapper = last_subblade_wrapper = NULL;
+  } else {
+    if (!first_subblade_wrapper) return NULL;
+    blade = first_subblade_wrapper->blade_;
+  }
+
+  SubBladeWrapperWithList* ret = new SubBladeWrapperWithList(indices, count);
+
+  if (first_subblade_wrapper) {
+    ret->SetNext(last_subblade_wrapper);
+    first_subblade_wrapper->SetNext(ret);
+    last_subblade_wrapper = ret;
+  } else {
+    ret->SetNext(ret);
+    first_subblade_wrapper = last_subblade_wrapper = ret;
+  }
+
+  ret->SetupSubBlade(blade, 0, count);
+  return ret;
+}
+
+// Allow inline LED indices in the blade config
+template <int... Indices>
+BladeBase* SubBladeWithList(BladeBase* blade) {
+  static const int arr[sizeof...(Indices)] = { Indices... };
+  return SubBladeWithList(arr, sizeof...(Indices), blade);
 }
 
 class BarBackWrapper : public SubBladeWrapper {
