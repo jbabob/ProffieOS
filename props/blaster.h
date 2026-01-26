@@ -17,7 +17,7 @@ Optional #defines on your config file that customize the blaster's behavior.
 Optional defines:
   #define ENABLE_BLASTER_AUTO           - DEPRECATED. Enable Autofire/rapid fire mode. Please replace with BLASTER_ENABLE_AUTO.
   #define BLASTER_ENABLE_AUTO           - Enable Autofire/rapid fire mode.
-  #define BLASTER_DEFAULT_MODE		- Sets the mode at startup MODE_STUN|MODE_KILL|MODE_AUTO. Defaulst to MODE_STUN.
+  #define BLASTER_DEFAULT_MODE          - Sets the mode at startup MODE_STUN|MODE_KILL|MODE_AUTO. Defaulst to MODE_STUN.
   #define BLASTER_SHOTS_UNTIL_EMPTY 15  - Whatever number, not defined = unlimited shots.
   #define BLASTER_JAM_PERCENTAGE        - Range 0-100 percent. If this is not defined, random from 0-100%.
 
@@ -27,30 +27,29 @@ This prop manages up to six different buttons.
 -------------------------------------------------------------------------------
 
 *Dual Buttons Mode*
- -Buttons: FIRE and MODE
+- Buttons: FIRE and MODE
   This is the "stock" configuration.
-  -Weapon will always start on the default mode (define with BLASTER_DEFAULT_MODE,
-  STUN is default).
-  Default is to powered on if it finds poweron.wav file present or off otherwise.
-  
-    Fire 			- Click FIRE.
-    Cycle Modes			- Click MODE.
-    Next Preset			- Long click and release MODE.
-    Previous Preset		- Double click and hold MODE, release after a second.
-    Reload			- Hold MODE until Reloaded.
-    Start/Stop Track		- Double click MODE.
-    Unjam			- Bang the blaster.
+  Weapon will always start on the default mode (define with BLASTER_DEFAULT_MODE, STUN is default).
+  Default is to start powered OFF if the font has a poweron.wav file, otherwise ON.
+
+    Fire                      - Click FIRE.
+    Cycle Modes               - Click MODE.
+    Next Preset               - Long click and release MODE.
+    Previous Preset           - Double click and hold MODE, release after a second.
+    Reload                    - Hold MODE until Reloaded.
+    Start/Stop Track          - Double click MODE.
+    Unjam                     - Bang the blaster.
 
 *Extra Buttons*
--Button: POWER
-    Power On / Off		- Click POWER.
+- Button: POWER
+    Power On / Off            - Click POWER.
 
--Button: RELOAD
-    Reload			- Hold RELOAD until Reloaded.
-	
--Button: CLIP
-	Clip In			- Latch CLIP
-	Clip Out		- Unlatch CLIP
+- Button: RELOAD
+    Reload                    - Hold RELOAD until Reloaded.
+
+- Button: CLIP
+      Clip In                 - Latch CLIP
+      Clip Out                - Unlatch CLIP
 
 
 -------------------------------------------------------------------------------
@@ -58,32 +57,33 @@ This prop manages up to six different buttons.
 This prop manages the following sounds.
 -------------------------------------------------------------------------------
 
-bgnauto 	Played when auto fire starts.
-auto 		Played while auto fire is going.
-endauto 	Played when auto fire ends.
-blast 		Is the semi-automatic fire sound. You can have as many as you want.
-boot 		Played when ProffieOS boots up.
-clipin 		Sound made when inserting a clip.
-clipout 	Sound made when dropping a clip.
-empty 		Sound when the weapon is out of rounds.
-font 		Name of the preset.
-full 		Sound made when the weapon is full of ammo.
-hum 		Constant sound looping while not firing.
-jam 		Sound made when the weapon jamed.
-unjam 		Sound made when unjamming the blaster.
-mode 		Sound made when switching mode (if mdkill, mdstun and/or mdauto not present). If none present, Talkie will be used instead.
-plioff 		Played while retracting the PLI bargraph.
-plion 		Played while extending the PLI bargraph.
-poweron 	If this file is present, the blaster will start once it is turned on. If not, you will need a Power button to power it on.
-range 		Sounds of increasing weapon range/power.
-stun 		Firing sound for stun mode.
-reload		Reloading sound.
-mdkill		Sound made when switching to KILL mode
-mdstun		Sound made when switching to STUN mode
-mdauto		Sound made when switching to AUTO mode
-
+bgnauto.wav     Played when auto fire starts.
+auto.wav        Played while auto fire is going.
+endauto.wav     Played when auto fire ends.
+blast.wav       Is the semi-automatic fire sound. You can have as many as you want.
+boot.wav        Played when ProffieOS boots up.
+clipin.wav      Sound made when inserting a clip.
+clipout.wav     Sound made when dropping a clip.
+empty.wav       Sound when the weapon is out of rounds.
+font.wav        Name of the preset.
+full.wav        Sound made when the weapon is full of ammo.
+hum.wav         Constant sound looping while not firing.
+jam.wav         Sound made when the weapon jamed.
+unjam.wav       Sound made when unjamming the blaster.
+plioff.wav      Played while retracting the PLI bargraph.
+plion.wav       Played while extending the PLI bargraph.
+poweron.wav     If this file is present, the blaster will start once it is turned on.
+                  Otherwise, you will need a Power button to power it on.
+range.wav       Sounds of increasing weapon range/power.
+stun.wav        Firing sound for stun mode.
+reload.wav      Reloading sound.
+mdkill.wav      Sound made when switching to KILL mode
+mdstun.wav      Sound made when switching to STUN mode
+mdauto.wav      Sound made when switching to AUTO mode
+mode.wav        Fallback sound used when switching mode if none of the 3 above exist.
+                  If no mode sounds are present at all, Talkie will speak the mode (if not disabled).
 */
-  
+
 #ifndef PROPS_BLASTER_H
 #define PROPS_BLASTER_H
 
@@ -129,7 +129,13 @@ public:
   };
 
   BlasterMode blaster_mode = BLASTER_DEFAULT_MODE;
-	
+
+#ifdef BLASTER_SHOTS_UNTIL_EMPTY
+  const int max_shots_ = BLASTER_SHOTS_UNTIL_EMPTY;
+#else
+  const int max_shots_ = -1;
+#endif
+
   int GetBlasterMode() const {
     return blaster_mode;
   }
@@ -148,7 +154,11 @@ public:
         return;
       case MODE_KILL:
 #if defined (ENABLE_BLASTER_AUTO) || defined (BLASTER_ENABLE_AUTO)
-        SetBlasterMode(MODE_AUTO);
+        if (SFX_auto) {
+          SetBlasterMode(MODE_AUTO);
+        } else {
+          SetBlasterMode(MODE_STUN);
+        }
 #else
         SetBlasterMode(MODE_STUN);
 #endif
@@ -159,18 +169,20 @@ public:
     }
   }
 
-  bool auto_firing_ = false;
-  int shots_fired_ = 0;
-  bool is_jammed_ = false;
+  bool CheckEmpty() const {
+    return max_shots_ != -1 && shots_fired_ >= max_shots_;
+  }
 
-#ifdef BLASTER_SHOTS_UNTIL_EMPTY
-  const int max_shots_ = BLASTER_SHOTS_UNTIL_EMPTY;
-#else
-  const int max_shots_ = -1;
-#endif
-
-  virtual int GetBulletCount() {
+  int GetBulletCount() {
     return max_shots_ - shots_fired_;
+  }
+
+  virtual bool DoEmpty() {
+    if (CheckEmpty()) {
+      SaberBase::DoEffect(EFFECT_EMPTY, 0);  // Trigger the empty effect
+      return true;
+    }
+    return false;
   }
 
   virtual bool CheckJam(int percent) {
@@ -178,40 +190,54 @@ public:
     return random < percent;
   }
 
-  virtual void Fire() {
-#ifdef ENABLE_MOTION
-#ifdef BLASTER_JAM_PERCENTAGE
+  bool DoJam() {
+#if defined(ENABLE_MOTION) && defined(BLASTER_JAM_PERCENTAGE)
     // If we're already jammed then we don't need to recheck. If we're not jammed then check if we just jammed.
     is_jammed_ = is_jammed_ ? true : CheckJam(BLASTER_JAM_PERCENTAGE);
 
     if (is_jammed_) {
       SaberBase::DoEffect(EFFECT_JAM, 0);
-      return;
-    }
-#endif
-#endif
-
-    if (max_shots_ != -1) {
-      if (shots_fired_ >= max_shots_) {
-        SaberBase::DoEffect(EFFECT_EMPTY, 0);
-        return;
-      }
-    }
-
-    if (blaster_mode == MODE_AUTO) {
-      SelectAutoFirePair(); // Set up the autofire pairing if the font suits it.
-      SaberBase::SetLockup(LOCKUP_AUTOFIRE);
-      SaberBase::DoBeginLockup();
-      auto_firing_ = true;
+      return true;
     } else {
-      if (blaster_mode == MODE_STUN) {
-        SaberBase::DoEffect(EFFECT_STUN, 0);
-      } else {
-        SFX_blast.Select(-1);
-        SaberBase::DoEffect(EFFECT_FIRE, 0);
-      }
+      return false;
+    }
+#else
+    return false;
+#endif
+  }
 
-      shots_fired_++;
+  virtual void DoStun() {
+    SaberBase::DoEffect(EFFECT_STUN, 0);
+    shots_fired_++;
+  }
+
+  virtual void DoKill() {
+    SFX_blast.Select(-1);
+    SaberBase::DoEffect(EFFECT_FIRE, 0);
+    shots_fired_++;
+  }
+
+  virtual void DoAutoFire() {
+    SelectAutoFirePair(); // Set up the auto-fire pairing if the font suits it
+    SaberBase::SetLockup(LOCKUP_AUTOFIRE);
+    SaberBase::DoBeginLockup();
+    auto_firing_ = true;
+  }
+
+  virtual void Fire() {
+    if (DoJam()) return;
+    if (DoEmpty()) return;
+
+    switch (blaster_mode) {
+      case MODE_STUN:
+        DoStun();
+        break;
+      case MODE_KILL:
+        DoKill();
+        break;
+      case MODE_AUTO:
+        DoAutoFire();
+        break;
     }
   }
 
@@ -248,11 +274,8 @@ public:
   // Pull in parent's SetPreset, but turn the blaster on.
   void SetPreset(int preset_num, bool announce) override {
     PropBase::SetPreset(preset_num, announce);
-
-    if (!SFX_poweron) {
-      if (!SaberBase::IsOn()) {
-        On();
-      }
+    if (!SFX_poweron && !SaberBase::IsOn()) {
+      On();
     }
   }
 
@@ -275,7 +298,7 @@ public:
   NextAction next_action_ = NEXT_ACTION_NOTHING;
   uint32_t time_base_;
   uint32_t next_event_time_;
-  
+
   void SetNextAction(NextAction what, uint32_t when) {
     time_base_ = millis();
     next_event_time_ = when;
@@ -285,8 +308,8 @@ public:
   void SetNextActionF(NextAction what, float when) {
     SetNextAction(what, when * 1000);
   }
-  
-  void PollNextAction() {
+
+  virtual void PollNextAction() {
     if (millis() - time_base_ > next_event_time_) {
       switch (next_action_) {
         case NEXT_ACTION_NOTHING:
@@ -302,23 +325,23 @@ public:
       next_action_ = NEXT_ACTION_NOTHING;
     }
   }
-  
+
   void beginArm() {
     SaberBase::SetLockup(SaberBase::LOCKUP_ARMED);
     SaberBase::DoBeginLockup();
-#ifdef ENABLE_AUDIO    
+#ifdef ENABLE_AUDIO
     float len = hybrid_font.GetCurrentEffectLength();
-#else    
+#else
     float len = 1.6;
 #endif
     SetNextActionF(NEXT_ACTION_ARM, len);
   }
 
-  void selfDestruct() {
+    virtual void selfDestruct() {
     SaberBase::DoEndLockup();
-#ifdef ENABLE_AUDIO    
+#ifdef ENABLE_AUDIO
     float len = hybrid_font.GetCurrentEffectLength();
-#else    
+#else
     float len = 0.0;
 #endif
     SaberBase::SetLockup(SaberBase::LOCKUP_NONE);
@@ -356,7 +379,7 @@ public:
       case EVENTID(BUTTON_MODE_SELECT, EVENT_SECOND_CLICK_LONG, MODE_ON):
         previous_preset();
         return true;
-        
+
       case EVENTID(BUTTON_RELOAD, EVENT_PRESSED, MODE_ON):
       case EVENTID(BUTTON_MODE_SELECT, EVENT_HELD_MEDIUM, MODE_ON):
         Reload();
@@ -398,24 +421,24 @@ public:
       case EVENTID(BUTTON_POWER, EVENT_PRESSED, MODE_ON):
         Off();
         return true;
-		    
-  #ifdef BLADE_DETECT_PIN
-    case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_ON, MODE_ANY_BUTTON | MODE_ON):
-    case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_ON, MODE_ANY_BUTTON | MODE_OFF):
-      // Might need to do something cleaner, but let's try this for now.
-      blade_detected_ = true;
-      FindBladeAgain();
-      SaberBase::DoBladeDetect(true);
-      return true;
 
-    case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_OFF, MODE_ANY_BUTTON | MODE_ON):
-    case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_OFF, MODE_ANY_BUTTON | MODE_OFF):
-      // Might need to do something cleaner, but let's try this for now.
-      blade_detected_ = false;
-      FindBladeAgain();
-      SaberBase::DoBladeDetect(false);
-      return true;
-  #endif
+#ifdef BLADE_DETECT_PIN
+      case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_ON, MODE_ANY_BUTTON | MODE_ON):
+      case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_ON, MODE_ANY_BUTTON | MODE_OFF):
+        // Might need to do something cleaner, but let's try this for now.
+        blade_detected_ = true;
+        FindBladeAgain();
+        SaberBase::DoBladeDetect(true);
+        return true;
+
+      case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_OFF, MODE_ANY_BUTTON | MODE_ON):
+      case EVENTID(BUTTON_BLADE_DETECT, EVENT_LATCH_OFF, MODE_ANY_BUTTON | MODE_OFF):
+        // Might need to do something cleaner, but let's try this for now.
+        blade_detected_ = false;
+        FindBladeAgain();
+        SaberBase::DoBladeDetect(false);
+        return true;
+#endif
     }
     return false;
   }
@@ -424,20 +447,20 @@ public:
   void SB_Effect(EffectType effect, EffectLocation location) override {
     switch (effect) {
       default: return;
-      case EFFECT_STUN: hybrid_font.PlayCommon(&SFX_stun); return;
-      case EFFECT_FIRE: hybrid_font.PlayCommon(&SFX_blast); return;
-      case EFFECT_CLIP_IN: hybrid_font.PlayCommon(&SFX_clipin); return;
+      case EFFECT_STUN:     hybrid_font.PlayCommon(&SFX_stun);    return;
+      case EFFECT_FIRE:     hybrid_font.PlayCommon(&SFX_blast);   return;
+      case EFFECT_CLIP_IN:  hybrid_font.PlayCommon(&SFX_clipin);  return;
       case EFFECT_CLIP_OUT: hybrid_font.PlayCommon(&SFX_clipout); return;
-      case EFFECT_RELOAD: hybrid_font.PlayCommon(&SFX_reload); return;
-      case EFFECT_MODE: SayMode(); return;
-      case EFFECT_RANGE: hybrid_font.PlayCommon(&SFX_range); return;
-      case EFFECT_EMPTY: hybrid_font.PlayCommon(&SFX_empty); return;
-      case EFFECT_FULL: hybrid_font.PlayCommon(&SFX_full); return;
-      case EFFECT_JAM: hybrid_font.PlayCommon(&SFX_jam); return;
-      case EFFECT_UNJAM: hybrid_font.PlayCommon(&SFX_unjam); return;
-      case EFFECT_PLI_ON: hybrid_font.PlayCommon(&SFX_plion); return;
-      case EFFECT_PLI_OFF: hybrid_font.PlayCommon(&SFX_plioff); return;
-  
+      case EFFECT_RELOAD:   hybrid_font.PlayCommon(&SFX_reload);  return;
+      case EFFECT_MODE:     SayMode();                            return;
+      case EFFECT_RANGE:    hybrid_font.PlayCommon(&SFX_range);   return;
+      case EFFECT_EMPTY:    hybrid_font.PlayCommon(&SFX_empty);   return;
+      case EFFECT_FULL:     hybrid_font.PlayCommon(&SFX_full);    return;
+      case EFFECT_JAM:      hybrid_font.PlayCommon(&SFX_jam);     return;
+      case EFFECT_UNJAM:    hybrid_font.PlayCommon(&SFX_unjam);   return;
+      case EFFECT_PLI_ON:   hybrid_font.PlayCommon(&SFX_plion);   return;
+      case EFFECT_PLI_OFF:  hybrid_font.PlayCommon(&SFX_plioff);  return;
+
     }
   }
 
@@ -463,7 +486,7 @@ public:
           hybrid_font.PlayCommon(&SFX_mode);
         } else {
 #ifndef DISABLE_TALKIE
-          talkie.Say(spKILL);      
+          talkie.Say(spKILL);
 #else
           beeper.Beep(0.05, 2000.0);
 #endif
@@ -476,7 +499,7 @@ public:
           hybrid_font.PlayCommon(&SFX_mode);
         } else {
 #ifndef DISABLE_TALKIE
-          talkie.Say(spAUTOFIRE);       
+          talkie.Say(spAUTOFIRE);
 #else
           beeper.Beep(0.05, 2000.0);
 #endif
@@ -484,7 +507,164 @@ public:
       break;
     }
   }
+
+  bool auto_firing_ = false;
+  int shots_fired_ = 0;
+  bool is_jammed_ = false;
+
 };
 
 #endif
 
+#ifdef PROP_BOTTOM
+
+#define ONCE_PER_BLASTER_EFFECT(X)    \
+  X(auto)                             \
+  X(stun)                             \
+  X(blast)                            \
+  X(reload)                           \
+  X(empty)                            \
+  X(jam)                              \
+  X(clipin)                           \
+  X(clipout)                          \
+  X(destruct)
+
+#ifdef INCLUDE_SSD1306
+
+struct BlasterDisplayConfigFile : public ConfigFile {
+  BlasterDisplayConfigFile() { link(&font_config); }
+  void iterateVariables(VariableOP *op) override {
+    CONFIG_VARIABLE2(ProffieOSStunImageDuration,     1000.0f);
+    CONFIG_VARIABLE2(ProffieOSFireImageDuration,     1000.0f);
+    CONFIG_VARIABLE2(ProffieOSReloadImageDuration,   1000.0f);
+    CONFIG_VARIABLE2(ProffieOSEmptyImageDuration,    1000.0f);
+    CONFIG_VARIABLE2(ProffieOSJamImageDuration,      1000.0f);
+    CONFIG_VARIABLE2(ProffieOSClipinImageDuration,   1000.0f);
+    CONFIG_VARIABLE2(ProffieOSClipoutImageDuration,  1000.0f);
+    CONFIG_VARIABLE2(ProffieOSDestructImageDuration, 10000.0f);
+  }
+
+  // for OLED displays, the time a stun.bmp     will play
+  float ProffieOSStunImageDuration;
+  // for OLED displays, the time a blast.bmp    will play
+  float ProffieOSFireImageDuration;
+  // for OLED displays, the time a reload.bmp   will play
+  float ProffieOSReloadImageDuration;
+  // for OLED displays, the time a empty.bmp    will play
+  float ProffieOSEmptyImageDuration;
+  // for OLED displays, the time a jam.bmp      will play
+  float ProffieOSJamImageDuration;
+  // for OLED displays, the time a clipin.bmp   will play
+  float ProffieOSClipinImageDuration;
+  // for OLED displays, the time a clipout.bmp  will play
+  float ProffieOSClipoutImageDuration;
+  // for OLED displays, the time a destruct.bmp will play
+  float ProffieOSDestructImageDuration;
+};
+
+template<typename PREFIX = ByteArray<>>
+struct BlasterDisplayEffects  {
+  BlasterDisplayEffects() : dummy_(0) ONCE_PER_BLASTER_EFFECT(INIT_IMG) {}
+  int dummy_;
+  ONCE_PER_BLASTER_EFFECT(DEF_IMG)
+};
+
+template<int Width, class col_t, typename PREFIX = ByteArray<>>
+class BlasterDisplayController : public StandardDisplayController<Width, col_t, PREFIX> {
+public:
+  BlasterDisplayEffects<PREFIX> &img_;
+  BlasterDisplayConfigFile &blaster_font_config;
+  BlasterDisplayController() :
+    img_(*getPtr<BlasterDisplayEffects<PREFIX>>()),
+    blaster_font_config(*getPtr<BlasterDisplayConfigFile>()) {
+  }
+
+  void ShowDefault(bool ignore_lockup = false) override {
+    if (SaberBase::IsOn() &&
+        SaberBase::Lockup() == SaberBase::LOCKUP_AUTOFIRE &&
+        img_.IMG_auto &&
+        !ignore_lockup) {
+      this->SetFile(&img_.IMG_auto, 3600000.0);
+      return;
+    }
+    StandardDisplayController<Width, col_t, PREFIX>::ShowDefault(ignore_lockup);
+  }
+
+  void SB_Effect2(EffectType effect, EffectLocation location) override {
+    switch (effect) {
+      case EFFECT_STUN:
+        this->ShowFileWithSoundLength(&img_.IMG_stun,    blaster_font_config.ProffieOSStunImageDuration);
+        break;
+      case EFFECT_FIRE:
+        this->ShowFileWithSoundLength(&img_.IMG_blast,   blaster_font_config.ProffieOSFireImageDuration);
+        break;
+      case EFFECT_RELOAD:
+        this->ShowFileWithSoundLength(&img_.IMG_reload,  blaster_font_config.ProffieOSReloadImageDuration);
+        break;
+      case EFFECT_EMPTY:
+        this->ShowFileWithSoundLength(&img_.IMG_empty,   blaster_font_config.ProffieOSEmptyImageDuration);
+        break;
+      case EFFECT_JAM:
+        this->ShowFileWithSoundLength(&img_.IMG_jam,     blaster_font_config.ProffieOSJamImageDuration);
+        break;
+      case EFFECT_CLIP_IN:
+        this->ShowFileWithSoundLength(&img_.IMG_clipin,  blaster_font_config.ProffieOSClipinImageDuration);
+        break;
+      case EFFECT_CLIP_OUT:
+        this->ShowFileWithSoundLength(&img_.IMG_clipout, blaster_font_config.ProffieOSClipoutImageDuration);
+        break;
+      default:
+        StandardDisplayController<Width, col_t, PREFIX>::SB_Effect2(effect, location);
+    }
+  }
+
+  void SB_Off2(typename StandardDisplayController<Width, col_t, PREFIX>::OffType offtype, EffectLocation location) override {
+    if (offtype == StandardDisplayController<Width, col_t, PREFIX>::OFF_BLAST) {
+      this->ShowFileWithSoundLength(&img_.IMG_destruct, blaster_font_config.ProffieOSDestructImageDuration);
+    } else {
+      StandardDisplayController<Width, col_t, PREFIX>::SB_Off2(offtype, location);
+    }
+  }
+};
+
+#endif  // INCLUDE_SSD1306
+
+template<int W, int H, typename PREFIX = ConcatByteArrays<typename NumberToByteArray<W>::type, ByteArray<'x'>, typename NumberToByteArray<H>::type>>
+class BlasterColorDisplayController : public StandardColorDisplayController<W, H, PREFIX> {
+public:
+  template<int w, int h>
+  explicit BlasterColorDisplayController(SizedLayeredScreenControl<w, h>* screen) : StandardColorDisplayController<W, H, PREFIX>(screen) ONCE_PER_BLASTER_EFFECT(INIT_SCR) {
+  }
+
+  void ShowDefault(bool ignore_lockup = false) override {
+    if (SaberBase::IsOn() &&
+        SaberBase::Lockup() == SaberBase::LOCKUP_AUTOFIRE &&
+        SCR_auto &&
+        !ignore_lockup) {
+      this->scr_.Play(&SCR_auto);
+      return;
+    }
+    StandardColorDisplayController<W, H, PREFIX>::ShowDefault(ignore_lockup);
+  }
+
+  void SB_Effect2(EffectType effect, EffectLocation location) override {
+    switch (effect) {
+      case EFFECT_STUN:     this->scr_.Play(&SCR_stun);    break;
+      case EFFECT_FIRE:     this->scr_.Play(&SCR_blast);   break;
+      case EFFECT_RELOAD:   this->scr_.Play(&SCR_reload);  break;
+      case EFFECT_EMPTY:    this->scr_.Play(&SCR_empty);   break;
+      case EFFECT_JAM:      this->scr_.Play(&SCR_jam);     break;
+      case EFFECT_CLIP_IN:  this->scr_.Play(&SCR_clipin);  break;
+      case EFFECT_CLIP_OUT: this->scr_.Play(&SCR_clipout); break;
+      default:
+        StandardColorDisplayController<W, H, PREFIX>::SB_Effect2(effect, location);
+    }
+  }
+
+protected:
+  ONCE_PER_BLASTER_EFFECT(DEF_SCR);
+};
+
+#undef ONCE_PER_BLASTER_EFFECT
+
+#endif  // PROP_BOTTOM

@@ -11,7 +11,7 @@ public:
   void iterateVariables(VariableOP *op) override {
     CONFIG_VARIABLE2(voice_pack_version, 1);
   }
-  int voice_pack_version;  
+  int voice_pack_version;
 };
 
 // Sound library
@@ -44,7 +44,7 @@ enum ColorNumber {
   COLOR_SILVER = 20,
   COLOR_GLACIER = 21,
   COLOR_ICEWHITE = 22,
-  COLOR_LIGHTCYAN = 23,   
+  COLOR_LIGHTCYAN = 23,
   COLOR_MOCCASIN = 24,
   COLOR_LEMONCHIFFON = 25,
   COLOR_NAVAJOWHITE = 26,
@@ -63,7 +63,7 @@ public:
   }
 
   void SB_Effect(EffectType effect, EffectLocation location) override {
-    if (effect == EFFECT_NEWFONT) CheckVersion();
+    if (effect == EFFECT_CHDIR) CheckVersion();
   }
 private:
   void CheckVersion() {
@@ -72,11 +72,14 @@ private:
       VoicePackVersionFile f;
       f.ReadInCurrentDir("voicepack.ini");
       found_version = f.voice_pack_version;
-      PVLOG_STATUS << "Sound library version " << found_version << " found.\n";
+      PVLOG_STATUS << "Voice pack version " << found_version << " found.\n";
     }
     if (found_version < required_version_) {
-      PVLOG_ERROR << "Sound library version " << required_version_ << " required.\n";
-      ProffieOSErrors::error_in_font_directory(); // Make new error for voice pack?
+      if (SFX_mnum) {
+        ProffieOSErrors::error_in_voice_pack_version();
+      } else {
+       ProffieOSErrors::voice_pack_not_found();
+      }
     }
   }
 
@@ -156,18 +159,31 @@ public:
     SayNumber(battery_monitor.battery(), SAY_DECIMAL);
     SayVolts();
   }
-        
+
   void SayBatteryPercent() {
     SayBatteryLevel();
     SayNumber(battery_monitor.battery_percent(), SAY_WHOLE);
     SayPercent();
   }
 
+#ifdef SEARCH_FOR_SOUND_LIBRARY_FILES
+
+// Search font path for sound.
 #define ADD_SL_SOUND(NAME, BASE)                                        \
   void Say##NAME() { SOUNDQ->Play(BASE ".wav"); }                       \
   /* t for "trampoline" */                                              \
   struct t##NAME { static void say() { SOUNDQ->Play(BASE ".wav"); } }
-  
+
+#else
+
+// Use mnum as template where to find sounds.
+#define ADD_SL_SOUND(NAME, BASE)                                        \
+  void Say##NAME() { SOUNDQ->Play(SoundToPlayInSameDirAs(BASE ".wav", &SFX_mnum)); } \
+  /* t for "trampoline" */                                              \
+  struct t##NAME { static void say() { SOUNDQ->Play(SoundToPlayInSameDirAs(BASE ".wav", &SFX_mnum)); } }
+
+#endif
+
   ADD_SL_SOUND(Red, "clrlst/clrlst01");
   ADD_SL_SOUND(OrangeRed, "clrlst/clrlst02");
   ADD_SL_SOUND(DarkOrange, "clrlst/clrlst03");
@@ -226,9 +242,9 @@ public:
   ADD_SL_SOUND(90, "ninety");
   ADD_SL_SOUND(100, "hundred");
   ADD_SL_SOUND(1000, "thousand");
-  
+
   ADD_SL_SOUND(Point, "mpoint");
-  
+
   ADD_SL_SOUND(Accept, "maccept");
   ADD_SL_SOUND(AdjustBlackLevel, "mblack");
   ADD_SL_SOUND(AdjustColorHue, "mhue");
@@ -383,7 +399,7 @@ public:
     if (v) {
       SayEnabled();
     } else {
-      SayDisabled(); 
+      SayDisabled();
     }
   }
 
@@ -570,7 +586,7 @@ public:
 // Please don't forget to call sound_library_->init();
 #define sound_library_ (*getPtr<SoundLibrary>())
 
-// Please don't forget to call sound_librar_v2->init();
+// Please don't forget to call sound_library_v2->init();
 #define sound_library_v2 (*getPtr<SoundLibraryV2>())
 
 #endif

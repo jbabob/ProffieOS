@@ -12,7 +12,7 @@
 
 bool near(float a, float b) { return fabs(a-b) < 0.02; }
 
-std::pair<int, int> getfps(const std::string& filename) {
+std::pair<int, int> getfpsInternal(const std::string& filename) {
   setenv("FILE", filename.c_str(), 1);
   std::string cmd = "ffprobe -i \"$FILE\" 2>&1 |  sed -n 's@.*Video:.*, \\([0-9.]*\\) fps,.*@\\1@gp'";
   fprintf(stderr, "Executing: %s\n", cmd.c_str());
@@ -22,7 +22,7 @@ std::pair<int, int> getfps(const std::string& filename) {
   int l = fread(buffer, 1, 128 - 1, f);
   if (l < 0) return std::make_pair(0, 0);
   buffer[l] = 0;
-  fclose(f);
+  pclose(f);
   float fps  = strtod(buffer, nullptr);
   if (fps <= 0.0) return std::make_pair(0, 0);
   int i = (int)floor(fps + 0.5);
@@ -31,6 +31,23 @@ std::pair<int, int> getfps(const std::string& filename) {
   return std::make_pair(fps, 1000000);
 }
 
+// This is a guess, if not sure, return false.
+bool isVideo(const std::string& filename) {
+  if (endswith(filename, ".mp4")) return true;
+  if (endswith(filename, ".webm")) return true;
+  if (endswith(filename, ".mkv")) return true;
+  if (endswith(filename, ".m4v")) return true;
+  return false;
+}
+
+std::pair<int, int> getfps(const std::string& filename) {
+  std::pair<int, int> ret = getfpsInternal(filename);
+  if (ret.first == 0 && isVideo(filename)) {
+    fprintf(stderr, "Failed to extract frame rate from video. (ffprobe not available?)\n");
+    exit(1);
+  }
+  return ret;
+}
 
 class Generator {
 public:

@@ -46,9 +46,9 @@ class Effect {
 
     bool operator==(const FileID& other) const {
       return other.effect_ == effect_ &&
-	file_ == other.file_ &&
-	sub_id_ == other.sub_id_ &&
-	alt_ == other.alt_;
+       file_ == other.file_ &&
+       sub_id_ == other.sub_id_ &&
+       alt_ == other.alt_;
     }
 
     operator bool() const { return effect_ != nullptr; }
@@ -63,12 +63,12 @@ class Effect {
     // Maybe this should always use effect_->following_ ??
     FileID GetFollowing(Effect* effect) {
       if (effect_ &&
-	  effect_->paired_ &&
-	  effect_->files_found() == effect->files_found() &&
-	  effect->selected_ == -1) {
-	return FileID(effect, file_, effect->random_subid(file_));
+          effect_->paired_ &&
+          effect_->files_found() == effect->files_found() &&
+          effect->selected_ == -1) {
+        return FileID(effect, file_, effect->random_subid(file_));
       } else {
-	return effect->RandomFile();
+        return effect->RandomFile();
       }
     }
 
@@ -113,15 +113,15 @@ class Effect {
       case WAV:
       case RAW:
       case USL:
-	return FileType::SOUND;
+        return FileType::SOUND;
       case BMP:
       case PBM:
       case Binary:
-	return FileType::IMAGE;
+        return FileType::IMAGE;
       case SCR:
-	return FileType::SCREEN;
+        return FileType::SCREEN;
       default:
-	return FileType::UNKNOWN;
+        return FileType::UNKNOWN;
     }
   }
 
@@ -150,13 +150,25 @@ class Effect {
   }
 
   Effect(const char* name,
-	 Effect* following = nullptr,
-	 FileType file_type = FileType::SOUND) : name_(name) {
+         Effect* following = nullptr,
+         FileType file_type = FileType::SOUND) : name_(name) {
     following_ = following;
     file_type_ = file_type;
     next_ = all_effects;
     all_effects = this;
     reset();
+  }
+
+  void CopyDirectoryFrom(Effect* effect) {
+    min_file_ = 0;
+    max_file_ = 0;
+    unnumbered_file_found_ = true;
+    found_in_alt_dir_ = effect->found_in_alt_dir_;
+    file_pattern_ = effect->file_pattern_;
+    ext_ = Extension::WAV;
+    num_files_ = 1;
+    directory_ = effect->directory_;
+    volume_ = effect->volume_;
   }
 
   void reset() {
@@ -193,7 +205,7 @@ class Effect {
     if (alt != -1) {
       filename += 7;
     }
-    
+
     const char *rest = startswith(name_, filename);
     if (!rest) return false;
     if (*rest == '/') {
@@ -232,10 +244,10 @@ class Effect {
     }
 
     if (type_if_found == FilePattern::NONREDUNDANT_SUBDIRS &&
-	*rest == '/' &&
-	PO_isDigit(rest[1]) &&
-	PO_isDigit(rest[2]) &&
-	PO_isDigit(rest[3])) {
+        *rest == '/' &&
+        PO_isDigit(rest[1]) &&
+        PO_isDigit(rest[2]) &&
+        PO_isDigit(rest[3])) {
       int sub = strtol(rest+1, nullptr, 10);
       sub_files_ = std::max<int>(sub_files_, sub + 1);
       rest += 4;
@@ -251,7 +263,7 @@ class Effect {
       num_alternatives = std::max<int>(num_alternatives, alt + 1);
       found_in_alt_dir_ = true;
     }
-    
+
     return true;
   }
 
@@ -290,19 +302,22 @@ class Effect {
           break;
         case FilePattern::NONREDUNDANT_SUBDIRS:
           STDOUT.print(" in efficient subdirs");
-	  break;
+          break;
       }
       if (sub_files_) {
-	STDOUT.print(" with ");
-	STDOUT.print(sub_files_);
-	STDOUT.print(" sub files ");
-	expected_files *= sub_files_;
+        STDOUT.print(" with ");
+        STDOUT.print(sub_files_);
+        STDOUT.print(" sub files ");
+        expected_files *= sub_files_;
       }
       if (expected_files != (int)num_files_) {
-	STDOUT << " SOME FILES ARE MISSING! " << expected_files << " != " << num_files_;
+        STDOUT << " SOME FILES ARE MISSING! " << expected_files << " != " << num_files_;
       }
       STDOUT.print(" in ");
       STDOUT.print(directory_);
+      if (found_in_alt_dir_) {
+        STDOUT.print("/alt*");
+      }
       STDOUT.println("");
     }
   }
@@ -341,11 +356,11 @@ class Effect {
   size_t expected_files() const {
     return files_found() * number_of_alternatives() * number_of_subfiles();
   }
-  
+
   size_t get_min_file() const { return min_file_; }
-	
+
   const char* get_directory() const { return directory_; }
-	
+
   operator bool() const { return files_found() > 0; }
 
   void Select(int n) {
@@ -366,7 +381,7 @@ class Effect {
 #endif
     selected_ = sel;
   }
-	
+
   Effect* GetFollowing() const {
     return following_;
   }
@@ -383,21 +398,21 @@ class Effect {
     int n = rand() % N;
     if (n == last) {
       switch (N) {
-      default:
-	n = rand() % (N - 1);
-	if (n >= last) n++;
-	break;
-      case 2:
-	if (n == last) n = rand() % N;
-      case 1:
-	break;
+        default:
+          n = rand() % (N - 1);
+          if (n >= last) n++;
+          break;
+        case 2:
+          if (n == last) n = rand() % N;
+        case 1:
+        break;
       }
     }
     return n;
   }
 #define RANDOMIZE(N, LAST) randomize((N), (LAST))
 #else
-#define RANDOMIZE(N, LAST) (rand() % (N))  
+#define RANDOMIZE(N, LAST) (rand() % (N))
 #endif
 
 
@@ -406,7 +421,7 @@ class Effect {
     int ret = RANDOMIZE(sub_files_, last_ == filenum ? last_subid_ : -1);
 #ifdef NO_REPEAT_RANDOM
     last_subid_ = ret;
-#endif    
+#endif
     return ret;
   }
 
@@ -415,6 +430,9 @@ class Effect {
     if (num_files < 1) {
       default_output->print("No sounds found: ");
       default_output->println(name_);
+
+      // If we have a following file, then just get that file and play it.
+      if (following_ && following_ != this) return following_->RandomFile();
       return FileID();
     }
     int n;
@@ -430,7 +448,7 @@ class Effect {
 
 #ifdef NO_REPEAT_RANDOM
     last_ = n;
-#endif    
+#endif
 
     return FileID(this, n, subid);
   }
@@ -551,28 +569,28 @@ class Effect {
       }
       return false;
     }
-    
+
     void ScanIterator(LSFS::Iterator& iter) {
       PVLOG_DEBUG << "ScanIterator " << iter.name() << " fname=" << fname << "\n";
       char* fend = fname;
       int flen = strlen(fname);
       fend += flen;
       if (flen && fend[-1] != '/') {
-	*fend = '/';
-	fend++;
+        *fend = '/';
+        fend++;
       }
       for (; iter; ++iter) {
-	PVLOG_VERBOSE << " Directory entry: '" << iter.name() << "'\n";
-	if (iter.name()[0] == '.') continue;
-	strcpy(fend, iter.name());
-	if (iter.isdir()) {
-	  if (ShouldScan(iter.name())) {
-	    LSFS::Iterator i2(iter);
-	    ScanIterator(i2);
-	  }
-	} else {
-	  ScanAll(font_path_ptr, fname);
-	}
+        PVLOG_VERBOSE << " Directory entry: '" << iter.name() << "'\n";
+        if (iter.name()[0] == '.') continue;
+        strcpy(fend, iter.name());
+        if (iter.isdir()) {
+          if (ShouldScan(iter.name())) {
+            LSFS::Iterator i2(iter);
+            ScanIterator(i2);
+          }
+        } else {
+          ScanAll(font_path_ptr, fname);
+        }
       }
     }
 
@@ -609,7 +627,6 @@ class Effect {
       scanner.Scan(dir);
       STDOUT.println(" done");
     } else {
-      STDOUT.println(" NOT FOUND!");
       if (strlen(dir)) ProffieOSErrors::font_directory_not_found();
     }
 #endif   // ENABLE_SD
@@ -617,7 +634,6 @@ class Effect {
 
   static void ScanCurrentDirectory() {
     LOCK_SD(true);
-    current_alternative = 0;
     num_alternatives = 0;
     for (Effect* e = all_effects; e; e = e->next_) {
       e->reset();
@@ -630,16 +646,15 @@ class Effect {
     bool warned = false;
     for (Effect* e = all_effects; e; e = e->next_) {
       if (e->expected_files() != (size_t)(e->num_files_)) {
-	if (!warned) {
-	  warned = true;
-	  STDOUT.println("");
-	  STDOUT.println("WARNING: This font seems to be missing some files!!");
-	  ProffieOSErrors::error_in_font_directory();
-	}
-	e->Show();
+        if (!warned) {
+          warned = true;
+          PVLOG_ERROR <<"\nWARNING: A font seems to be missing some files!!\n";
+          ProffieOSErrors::error_in_font_directory();
+        }
+        e->Show();
       }
     }
-    
+
     LOCK_SD(false);
   }
 
@@ -708,8 +723,18 @@ EFFECT(preon);
 EFFECT(pstoff);
 
 // Monophonic fonts
-EFFECT(boot);     // also polyphonic
-EFFECT(bladein);  // also polyphonic
+
+// Idle effect, plays when blade is off.
+#ifdef ENABLE_IDLE_SOUND
+EFFECT2(idle, idle);
+EFFECT2(bgnidle, idle);
+EFFECT2(boot, bgnidle);
+EFFECT2(font, bgnidle);
+#else
+EFFECT(boot);
+EFFECT(font);      // also polyphonic
+#endif
+EFFECT(bladein);   // also polyphonic
 EFFECT(bladeout);  // also polyphonic
 EFFECT2(hum, hum);
 EFFECT2(humm, humm);
@@ -726,7 +751,6 @@ EFFECT(spin);     // also polyphonic
 EFFECT(blaster);
 EFFECT2(lockup, lockup);
 EFFECT(poweronf); // force poweron
-EFFECT(font);     // also polyphonic
 EFFECT(bgnlock);  // monophonic and polyphonic begin lock
 EFFECT(endlock);  // Plecter endlock support, used for polyphonic name too
 
@@ -778,19 +802,22 @@ EFFECT(ccchange);
 EFFECT(altchng);
 EFFECT(chhum);
 
+// menu sounds
+EFFECT(mclick);
+
 // Blaster effects
 // hum, boot and font are reused from sabers and already defined.
 EFFECT(bgnauto); // Doesn't exist in fonts, but I expect there may be use for autofire transitions
-EFFECT2(auto,auto);
+EFFECT2(auto, auto);
 EFFECT(endauto); // Doesn't exist in fonts, but I expect there may be use for autofire transitions
 
 EFFECT(blast); // Not to be confused with "blst" and "blaster" as blocking sounds in sabers
 
 // battery low
-EFFECT(lowbatt);	// battery low
+EFFECT(lowbatt);    // battery low
 
 // TODO: Optimize this and make it possible
-// have the WAV reader use this.
+// to have the WAV reader use this.
 class EffectFileReader : public FileReader {
 public:
   EffectFileReader() : FileReader(), do_open_(0) {}

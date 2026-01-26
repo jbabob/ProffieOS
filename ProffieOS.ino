@@ -95,6 +95,7 @@
 #define SAVE_BLADE_DIMMING
 #define SAVE_CLASH_THRESHOLD
 #define SAVE_COLOR_CHANGE
+#define MOUNT_SD_SETTING
 #endif
 
 // #define ENABLE_DEBUG
@@ -115,7 +116,7 @@
 // is instantiated as "prop", and is responsible for handling
 // button clicks, clashes, swings and other events. These events
 // are then send to all registered SaberBase classes.
-///
+//
 // Generally speaking, there are usually two registered SaberBase
 // classes listening for events. One for sound and one for
 // the blade. Sound and blade effects are generally executed
@@ -291,6 +292,7 @@ void PrintQuotedValue(const char* name, const char* str) {
           break;
         case '\\':
           STDOUT.write('\\');
+          [[gnu::fallthrough]];
         default:
           STDOUT.write(*str);
       }
@@ -408,6 +410,7 @@ void EnableAmplifier();
 bool AmplifierIsActive();
 void MountSDCard();
 const char* GetSaveDir();
+bool AvoidIdleSDAccess();
 
 #include "common/lsfs.h"
 #include "common/strfun.h"
@@ -715,7 +718,7 @@ void prop_previous_preset() { prop.previous_preset(); }
 
 #ifdef DYNAMIC_BLADE_LENGTH
 int prop_GetBladeLength(int blade) {
-  return prop.GetBladeLength(blade); 
+  return prop.GetBladeLength(blade);
 }
 int prop_GetMaxBladeLength(int blade) {
   return prop.GetMaxBladeLength(blade);
@@ -812,7 +815,7 @@ public:
 
 #ifndef DISABLE_DIAGNOSTIC_COMMANDS
   File current_file;
-#endif  
+#endif
 
   bool TestPin(int pin, PinType t) {
     int ret = 0;
@@ -872,8 +875,7 @@ public:
     if (!strcmp(cmd, "format")) {
       STDOUT.print("Erasing ... ");
       SerialFlashChip::eraseAll();
-      while (!SerialFlashChip::ready())
-        ;
+      while (!SerialFlashChip::ready());
       STDOUT.println("Done");
       return true;
     }
@@ -1136,6 +1138,20 @@ public:
       default_output = stdout_output;
       return true;
     }
+    if (endswith("|", cmd) && e) {
+      char tmp[32];
+      StringPiece tag(cmd, strlen(cmd)-1);
+      LineTagger<128> line_tagger(tag);
+      const char* cmd2 = e;
+      const char *arg2 = strchr(e, ' ');
+      if (arg2 && arg2 - e < (int)sizeof(tmp)) {
+	memcpy(tmp, e, arg2 - e);
+	tmp[arg2 - e] = 0;
+	cmd2 = tmp;
+	arg2++;
+      }
+      return CommandParser::DoParse(cmd2, arg2);
+    }
 #if 0
     // Not finished yet
     if (!strcmp(cmd, "selftest")) {
@@ -1364,12 +1380,12 @@ public:
 #ifdef ENABLE_DEVELOPER_COMMANDS
     if (!strcmp(cmd, "whatispowered")) {
       STDOUT.print("ON: ");
-#define PRINTIFON(REG, BIT) \
-  do { \
-    if (RCC->REG & RCC_##REG##_##BIT##EN) { \
-      STDOUT.print(" " #BIT); \
+#define PRINTIFON(REG, BIT)                                            \
+  do {                                                                 \
+    if (RCC->REG & RCC_##REG##_##BIT##EN) {                            \
+      STDOUT.print(" " #BIT);                                          \
       if (!(startup_##REG & RCC_##REG##_##BIT##EN)) STDOUT.print("+"); \
-    } \
+    }                                                                  \
   } while (0)
 
       PRINTIFON(AHB1ENR, FLASH);
@@ -1696,6 +1712,11 @@ void loop() {
   Looper::DoLoop();
 }
 
+#define CONFIG_PROP
+#define PROP_BOTTOM
+#include CONFIG_FILE
+#undef CONFIG_PROP
+#undef PROP_BOTTOM
 
 #define CONFIG_BOTTOM
 #include CONFIG_FILE

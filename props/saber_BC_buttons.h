@@ -2,7 +2,7 @@
 saber_BC_buttons.h
   http://fredrik.hubbe.net/lightsaber/proffieos.html
   Copyright (c) 2016-2019 Fredrik Hubinette
-  Copyright (c) 2023-2024 Brian Conner with contributions by:
+  Copyright (c) 2023-2025 Brian Conner with contributions by:
   Fredrik Hubinette, Fernando da Rosa, Matthew McGeary, and Scott Weber.
   Distributed under the terms of the GNU General Public License v3.
   http://www.gnu.org/licenses/
@@ -10,8 +10,10 @@ saber_BC_buttons.h
 Includes 1 or 2 button controls. (3rd button for power control of Dual Blades supported as well).
 Incorporates an intuitive control scheme so button actions are consistant
 whether blade is on or off.
-Best if used with ProffieOS_Voicepack spoken menu prompts. 
-This prop version requires a V2 ProffieOS Voicepack for menus to work right.
+
+** This prop version REQUIRES a V2 ProffieOS Voicepack for menus to work right.
+** Menus will have no sounds if the contents are not somewhere in the font search path.
+** Typically, that is a folder named "common" on the root level of the SD card.
 
 Download your choice of language and variation here:
 http://fredrik.hubbe.net/lightsaber/sound/
@@ -41,7 +43,7 @@ Features:
                             other features. No limits, no lag when "rapid firing".
 - No inadvertant effects during preon.
 - Rotary control of Volume and Scroll Presets. (Rotate hilt like turning a dial)
-- * NEW for OS8 * 
+- * NEW for OS8 *
   - Dual blade independent ignition and retraction control with a single Proffieboard. (Such as for a staff saber)
   - Scroll Presets mode.
   - Quotes play with blade ON or OFF, and will not overlap / interrupt one another.
@@ -58,22 +60,12 @@ Optional Blade style elements:
 On-Demand battery level - A layer built into the blade styles that reacts
                           as the battery gets weaker, changing blade color
                           from Green to Red, and the blade length shortens.
-User Effects:
+User Effects: 
+These equate to Fett263 "Special Abilities" 1-8.
 - Can be built into blade style code to trigger anything that takes an EFFECT_XXXXX argument.
-- If using styles from the Fett263 Style Library, these equate to "Special Abilities 1-8".
-EFFECT_USER1
-EFFECT_USER2
-- 1 and 2 use POW button, and work when blade is ON.
-EFFECT_USER3
-EFFECT_USER4
-- 3 and 4 use AUX button, and work when blade is ON.
-EFFECT_USER5
-EFFECT_USER6
-- 5 and 6 use POW button, and work when blade is OFF.
-EFFECT_USER7
-EFFECT_USER8
-- 7 and 8 use AUX button, and work when blade is OFF.
-So if using a 1 button saber, USER effects 1,2,5,6 are available.
+EFFECT_USER1 through 4 work when blade is ON.
+EFFECT_USER5 through 8 work when blade is OFF.
+USER 3, 4, 7, 8 are done "while pointing up" on 1 button setups, or the AUX button for 2 button sabers.
 
 EFFECT_POWERSAVE        - PowerSave Dim Blade. Blade style should use a Mix or an AlphaL that applies
                           a transparent amount of Black to the base blade color.
@@ -90,14 +82,14 @@ Optional #defines:
 * NEW as of OS8:
 #define MENU_SPEC_TEMPLATE         - BC Volume Menu, Scroll Presets, ColorChange, and BC Blade Length adjust are used by default.
                                      Use this define to override and add access the the OS System Menu for editing presets, colors etc...
-                                     Several template choices are available to set how the menus are used. See Documentation.
+                                     Several template choices are available to set how the menus are used. See https://pod.hubbe.net/howto/menus.html.
 #define DYNAMIC_BLADE_LENGTH       - This is required for onboard menu driven blade length adjustments.
                                      The blade length maximum should be set in the user config file's BladeConfig section.
 
 // Adding the following define activates Dual Blade code in the prop.
 #define BC_DUAL_BLADES             - Use Dual Blades mode for a staff saber setup.
                                      Defaults are BLADE 1 and BLADE 2 as MAIN and SECOND blades respectively.
-                                     BLADE # corresponds to the blades list in the BladeConfig section of the config file, 
+                                     BLADE # corresponds to the blades list in the BladeConfig section of the config file,
                                      and therefore the position of the blade styles in a preset.
                                      If your MAIN and SECOND blades are not in position 1 and 2, you can use the following
                                      optional defines to manually set BLADE # to the appropriate blade from the BladeConfig list.
@@ -176,6 +168,7 @@ If you want to use the OS System Menu instead, you need to define a Menu Spec Te
 While in any menu mode the following controls apply:
 Save                - Click POW
 Cancel / Exit       - Click AUX or Double Click POW
+For more info, see https://pod.hubbe.net/howto/menus.html
 
 Each section for controls have a descriptive version listed by feature and somwhat in the order
 of using the saber, and a second summary list that is sorted by button clicks.
@@ -239,7 +232,9 @@ User Effect 5             - Hold POW then Rotate Left 60 degrees. (keep holding 
 User Effect 6             - Hold POW then Rotate Right 60 degrees. (keep holding POW until executed)
                             * Requires EFFECT_USER in blade style.
                             * Note the same controls when blade is ON are USER 1 and 2.
-
+Trigger Blade ID Scan     - 4x Click POW and Hold, release after one second (3x Click then Long Click)
+Next Blade Array          - 4x Click POW and Hold.
+                            * Cycles to the next blade array in BladeConfig
 
 -------- When blade is ON -------
 Play/Stop Track           - 4x Click POW.
@@ -283,7 +278,7 @@ Revert ColorChange        - 3x Click and Hold POW, release after a second. (Doub
                               * This is done outside ColorChange Mode
         ColorChange explained:
           If RotateColorsX<Variation,COLOR> is used in the blade style:
-              Rotate hilt to cycle through all available colors, 
+              Rotate hilt to cycle through all available colors,
               Hold POW to save color selection and exit.
           If ColorChange<> is used in the blade style:
               There are up to 12 colors per rotation with a ccchange.wav sound at each step.
@@ -311,8 +306,8 @@ Turn OFF bypass postoff   - Turn OFF (while pointing UP).
 ---------------------------------------
 --------- When blade is OFF ---------
 twist                   - turn both blades ON (requires Gesture defines)
-stab 
-swing 
+stab
+swing
 1 click                 - turn blade ON
                           turn blade ON bypass preon (pointing up)
 1 click long            - first preset (pointing up)
@@ -332,6 +327,9 @@ swing
 3 clicks held           - spoken battery level in percentage
                           spoken battery level in volts (pointing down)
 4 clicks                - play / stop track
+4 clicks long           - manually trigger blade ID scan
+4 clicks held           - manually switch to next blade array
+
 twist                   - turn blade ON (requires #define BC_TWIST_ON)
 - BC volume menu:
     rotate right        - volume UP
@@ -433,6 +431,9 @@ User Effect 7             - Hold AUX then Rotate Left 60 degrees. (keep holding 
 User Effect 8             - Hold AUX then Rotate Right 60 degrees. (keep holding AUX until executed)
                             * Requires EFFECT_USER in blade style.
                             * Note the same controls when blade is ON are USER 1,2,3,4.
+Trigger Blade ID Scan     - 4x Click POW and Hold, release after one second (3x Click then Long Click)
+Next Blade Array          - 4x Click POW and Hold.
+                            * Cycles to the next blade array in BladeConfig
 
 -------- When blade is ON -------
 Play/Stop Track           - Long Click then release POW.
@@ -478,7 +479,7 @@ Revert ColorChange        - 3x Click and Hold POW, release after a second. (Doub
                               * This is done outside ColorChange Mode
         ColorChange explained:
           If RotateColorsX<Variation,COLOR> is used in the blade style:
-              Rotate hilt to cycle through all available colors, 
+              Rotate hilt to cycle through all available colors,
               Hold POW to save color selection and exit.
           If ColorChange<> is used in the blade style:
               There are up to 12 colors per rotation with a ccchange.wav sound at each step.
@@ -508,8 +509,8 @@ Turn OFF bypass postoff   - Turn OFF (while pointing UP).
 ---------------------------------------
 --------- When blade is OFF ---------
 twist                   - turn both blades ON (requires Gesture defines)
-stab 
-swing 
+stab
+swing
 1 click POW             - turn blade ON
                           turn blade ON bypass preon (pointing up)
 1 click POW long        - play / stop track
@@ -529,6 +530,9 @@ swing
                           OS system menu instead (requires #define MENU_SPEC_TEMPLATE)
 3 clicks POW            - quote
                           toggle sequential or random quotes (pointing down)
+4 clicks long           - manually trigger blade ID scan
+4 clicks held           - manually switch to next blade array
+
 - BC Volume Menu
     rotate right        - volume UP
     rotate left         - volume DOWN
@@ -634,7 +638,7 @@ push                    - force push
 | Turn Both Blades ON Muted            - Hold POW then Swing.
 |                                        * Optional mute.wav will play before silent ignition and operation. Saber unmutes on retraction.
 | Turn Both Blades OFF                 - Twist. Twist is a back-and-forth pair of motions, like revving a motorcycle.
-|                                        * Tries to turns off both blades. Therefore even if only one is ON, this will turn it off. 
+|                                        * Tries to turns off both blades. Therefore even if only one is ON, this will turn it off.
 | Turn any Blade ON bypassing preon    - Point either blade up while turning blade(s) ON.
 |                                        * Uses fastout.wav if available, bypassing font.wav and preon.wav.
 |                                        If no blade is pointing up, both blades will ignite normally with preon if one exists.
@@ -679,6 +683,9 @@ push                    - force push
 | User Effect 6                        - Hold POW then Rotate Right 60 degrees. (keep holding POW until executed)
 |                                        * Requires EFFECT_USER in blade style.
 |                                        * Note the same controls when blade is ON are USER 1 and 2.
+||||||| NOT AVAILABLE Trigger Blade ID Scan     - 4x click POW and Hold, release after one second (3x Click then Long Click)
+| Next Blade Array          - 4x click POW and Hold.
+|                             * Cycles to the next blade array in BladeConfig
 |
 |-------- When a blade is ON --------
 | Play/Stop Track                      - 4x Click POW.
@@ -719,7 +726,7 @@ push                    - force push
 |                                        * This is done outside ColorChange Mode
 |     ColorChange explained:
 |       If RotateColorsX<Variation,COLOR> is used in the blade style:
-|           Rotate hilt to cycle through all available colors, 
+|           Rotate hilt to cycle through all available colors,
 |           Hold POW to save color selection and exit.
 |       If ColorChange<> is used in the blade style:
 |           There are up to 12 colors per rotation with a ccchange.wav sound at each step.
@@ -736,14 +743,14 @@ push                    - force push
 | User Effect 2                        - Hold POW then Rotate Right 60 degrees. (keep holding POW until executed)
 |                                        * Require EFFECT_USER in blade style.
 |                                        * Note the same controls when blade is OFF are USER 5 and 6.
-| 
-| --------------------------------------- 
-|  1 button dual blade summary by clicks 
-| --------------------------------------- 
-| --------- When both blades are OFF --------- 
+|
+| ---------------------------------------
+|  1 button dual blade summary by clicks
+| ---------------------------------------
+| --------- When both blades are OFF ---------
 |
 | gestures: (require gesture defines)
-| twist or swing          - turn both blades ON 
+| twist or swing          - turn both blades ON
 | stab / thrust           - turn stabbed / thrusted blade ON
 |
 | buttons:
@@ -769,6 +776,8 @@ push                    - force push
 |                           spoken battery level in volts (pointing down)
 | 4 clicks                - play / stop track
 | 4 clicks long           - turn second blade ON first muted
+||||||||| NOT AVAILABLE     4 clicks long           - manually trigger blade ID scan
+| 4 clicks held           - manually switch to next blade array
 | - BC Volume menu:
 |     rotate right        - volume UP
 |     rotate left         - volume DOWN
@@ -830,7 +839,7 @@ push                    - force push
 | Turn Both Blades ON Muted            - Hold POW then Twist.
 |                                        * Optional mute.wav will play before silent ignition and operation. Saber unmutes on retraction.
 | Turn Both Blades OFF                 - Twist. Twist is a back-and-forth pair of motions, like revving a motorcycle.
-|                                        * Tries to turns off both blades. Therefore even if only one is ON, this will turn it off. 
+|                                        * Tries to turns off both blades. Therefore even if only one is ON, this will turn it off.
 | Turn any Blade ON bypassing preon    - Point either blade up while turning blade(s) ON.
 |                                        * Uses fastout.wav if available, bypassing font.wav and preon.wav.
 |                                        If no blade is pointing up, both blades will ignite normally with preon if one exists.
@@ -875,6 +884,9 @@ push                    - force push
 | User Effect 8                        - Hold AUX then Rotate Right 60 degrees. (keep holding AUX until executed)
 |                                        * Requires EFFECT_USER in blade style.
 |                                        * Note the same controls when blade is ON are USER 1,2,3,4.
+| Trigger Blade ID Scan     - 4x click POW and Hold, release after one second (3x Click then Long Click)
+| Next Blade Array          - 4x click POW and Hold.
+|                             * Cycles to the next blade array in BladeConfig
 |
 |-------- When a blade is ON -------
 | Play/Stop Track                    - Long Click POW.
@@ -915,7 +927,7 @@ push                    - force push
 |                                        * This is done outside ColorChange Mode
 |     ColorChange explained:
 |       If RotateColorsX<Variation,COLOR> is used in the blade style:
-|           Rotate hilt to cycle through all available colors, 
+|           Rotate hilt to cycle through all available colors,
 |           Hold POW to save color selection and exit.
 |       If ColorChange<> is used in the blade style:
 |           There are up to 12 colors per rotation with a ccchange.wav sound at each step.
@@ -942,7 +954,7 @@ push                    - force push
 | --------- When both blades are OFF ---------
 |
 | gestures: (require gesture defines)
-| twist or swing          - turn both blades ON 
+| twist or swing          - turn both blades ON
 | stab / thrust           - turn stabbed / thrusted blade ON
 |
 | buttons:
@@ -969,6 +981,8 @@ push                    - force push
 |                         - turn both blades ON bypass preon (either blade pointing up)
 | 3 clicks POW            - quote
 |                           toggle sequential or random quotes (pointing down)
+| 4 clicks long           - manually trigger blade ID scan
+| 4 clicks held           - manually switch to next blade array
 | - BC Volume menu:
 |     rotate right        - volume UP
 |     rotate left         - volume DOWN
@@ -987,7 +1001,7 @@ push                    - force push
 | Hold POW
 |     then click AUX      - enter BC volume menu
 |
-| --------- When a blade is ON --------- 
+| --------- When a blade is ON ---------
 | 1 click POW             - turn main blade ON (if second blade is ON), otherwise blaster deflection
 | 1 click POW long        - play / stop track
 | 1 click POW held        - turn main blade OFF
@@ -1048,7 +1062,7 @@ push                    - force push
 |
 | 1 click AUX2            - turn second blade ON
 |                           turn second blade ON first bypass preon (either blade pointing up)
-| --------- When blade is ON --------- 
+| --------- When blade is ON ---------
 |
 | 1 click AUX2 held       - turn second blade OFF
 |                           turn second blade OFF bypass postoff (pointing either blade UP)
@@ -1105,10 +1119,6 @@ push                    - force push
 #define BUTTON_HELD_LONG_TIMEOUT 2000
 #endif
 
-#ifndef NORMAL_TWIST_TIMEOUT
-#define NORMAL_TWIST_TIMEOUT 400
-#endif
-
 #ifndef BC_MAIN_BLADE
 #define BC_MAIN_BLADE 1
 #endif
@@ -1140,17 +1150,16 @@ EFFECT(dim);        // for EFFECT_POWERSAVE
 EFFECT(battery);    // for EFFECT_BATTERY_LEVEL
 EFFECT(bmbegin);    // for Begin Battle Mode
 EFFECT(bmend);      // for End Battle Mode
-EFFECT(volup);      // for increse volume
 EFFECT(push);       // for Force Push gesture
 EFFECT(tr);         // for EFFECT_TRANSITION_SOUND, use with User Effects.
 EFFECT(mute);       // Notification before muted ignition to avoid confusion.
-EFFECT(mzoom);      // for Spam Blast enter/exit
+EFFECT(array);      // for Manual Blade Array switching
+#ifdef BC_BUTTON_CLICKER
+EFFECT(press);      // for button press clicks when OFF only.
+#endif
 
 template<class SPEC>
 struct BCScrollPresetsMode : public SPEC::SteppedMode {
-  int steps_per_revolution() override {
-    return 12;  // adjust for sensitivity
-  }
 
   void next() override {
     beeper.Beep(0.05, 4000);
@@ -1163,6 +1172,9 @@ struct BCScrollPresetsMode : public SPEC::SteppedMode {
   }
 
   void update() override {  // Overridden to substitute the tick sound
+#ifdef ENABLE_IDLE_SOUND
+    SFX_font.SetFollowing(nullptr);
+#endif
   }
 
   void exit() override {
@@ -1184,7 +1196,6 @@ struct BCScrollPresetsMode : public SPEC::SteppedMode {
         exit();
         return true;
 
-      // case EVENTID(BUTTON_POWER, EVENT_SECOND_SAVED_CLICK_SHORT, 0):
       case EVENTID(BUTTON_POWER, EVENT_FIRST_HELD_MEDIUM, 0):
         exit();
         return true;
@@ -1201,17 +1212,19 @@ struct BCVolumeMode : public SPEC::SteppedMode {
   int initial_percentage_ = 0;
   int percentage_ = 0;
 
-  int steps_per_revolution() override {
-    return 12;  // adjust for sensitivity
-  }
-
   void mode_activate(bool onreturn) override {
-    PVLOG_NORMAL << "** Enter Volume Menu\n";
     initial_volume_ = dynamic_mixer.get_volume();
     initial_percentage_ = round((initial_volume_ / max_volume_) * 10) * 10;
+    percentage_ = initial_percentage_;
     SaberBase::DoEffect(EFFECT_VOLUME_LEVEL, 0);
     mode::getSL<SPEC>()->SayEditVolume();
     announce_volume();
+
+    PVLOG_NORMAL << "** Enter Volume Menu\n";
+    if (percentage_ <= 10) PVLOG_NORMAL << "** Minimum Volume\n";
+    else if (percentage_ >= 100) PVLOG_NORMAL << "** Maximum Volume\n";
+    else PVLOG_NORMAL << "** Volume " << percentage_ << "%\n";
+
     SPEC::SteppedMode::mode_activate(onreturn);
   }
 
@@ -1230,6 +1243,11 @@ struct BCVolumeMode : public SPEC::SteppedMode {
     announce_volume();
     mode::getSL<SPEC>()->SayVolumeMenuEnd();
     SPEC::SteppedMode::mode_deactivate();
+
+    // "Exit Volume Menu" printout already handled in select() / exit()
+    if (percentage_ <= 10) PVLOG_NORMAL << "** Minimum Volume\n";
+    else if (percentage_ >= 100) PVLOG_NORMAL << "** Maximum Volume\n";
+    else PVLOG_NORMAL << "** Final Volume " << percentage_ << "%\n";
   }
 
   void next() override {
@@ -1240,6 +1258,7 @@ struct BCVolumeMode : public SPEC::SteppedMode {
         current_volume_ = max_volume_;
         QuickMaxVolume();
       } else {
+        sound_library_.fadeout(0.2);
         mode::getSL<SPEC>()->SayVolumeUp();
       }
       dynamic_mixer.set_volume(current_volume_);
@@ -1254,6 +1273,7 @@ struct BCVolumeMode : public SPEC::SteppedMode {
         current_volume_ = min_volume_;
         QuickMinVolume();
       } else {
+        sound_library_.fadeout(0.2);
         mode::getSL<SPEC>()->SayVolumeDown();
       }
       dynamic_mixer.set_volume(current_volume_);
@@ -1272,9 +1292,10 @@ struct BCVolumeMode : public SPEC::SteppedMode {
     mode::getSL<SPEC>()->SayMinimumVolume();
   }
 
-  void update() override {  // Overridden to substitute the tick sound
+  void update() override {
     float volume = dynamic_mixer.get_volume();
     percentage_ = round((volume / max_volume_) * 10) * 10;
+    PVLOG_NORMAL << "** Volume " << percentage_ << "%\n";
     SaberBase::DoEffect(EFFECT_VOLUME_LEVEL, 0);
   }
 
@@ -1290,24 +1311,6 @@ struct BCVolumeMode : public SPEC::SteppedMode {
     dynamic_mixer.set_volume(initial_volume_);
     mode::getSL<SPEC>()->SayCancel();
     SPEC::SteppedMode::exit();
-  }
-
-  bool Parse(const char *cmd, const char* arg) override {
-    if (PropBase::Parse(cmd, arg)) return true;
-
-    if (!strcmp(cmd, "twist")) {
-        Event(BUTTON_NONE, EVENT_TWIST);
-        return true;
-    }
-    if (!strcmp(cmd, "left")) {
-        Event(BUTTON_NONE, EVENT_TWIST_LEFT);
-        return true;
-    }
-    if (!strcmp(cmd, "right")) {
-        Event(BUTTON_NONE, EVENT_TWIST_RIGHT);
-        return true;
-    }
-    return false;
   }
 
   bool mode_Event2(enum BUTTON button, EVENT event, uint32_t modifiers) override {
@@ -1377,13 +1380,12 @@ struct BCSelectBladeMode : public SPEC::MenuBase {
 };
 
 template<class SPEC>
-// struct BCChangeBladeLengthBlade1 : public SPEC::ChangeBladeLengthMode {
 struct BCChangeBladeLengthBlade1 : public mode::ChangeBladeLengthBlade1<SPEC> {
-  // virtual int blade() { return mode::menu_current_blade; }
 
   int steps_per_revolution() override {
     return 30;  // adjust for sensitivity
   }
+
   void select() override {
     PVLOG_NORMAL << "** Saved blade length : " << this->getLength() << "\n";
     prop_SetBladeLength(this->blade(), this->getLength());
@@ -1391,8 +1393,9 @@ struct BCChangeBladeLengthBlade1 : public mode::ChangeBladeLengthBlade1<SPEC> {
     mode::getSL<SPEC>()->SaySave();
     popMode();
   }
+
   void update() override {
-    hybrid_font.PlayPolyphonic(&SFX_volup);
+    hybrid_font.PlayPolyphonic(&SFX_mclick);
     this->say_time_ = Cyclint<uint32_t>(millis()) + (uint32_t)(SaberBase::sound_length * 1000) + 300;
     if (!this->say_time_) this->say_time_ += 1;
     this->fadeout(SaberBase::sound_length);
@@ -1491,6 +1494,10 @@ public:
     if (current_mode == this) {
       PVLOG_NORMAL << "** Enter Scroll Presets\n";
       BeepEnterFeature();
+#ifdef ENABLE_IDLE_SOUND
+      hybrid_font.StopIdleSound();
+      SFX_font.SetFollowing(nullptr);
+#endif
       scroll_presets_beep_delay_timer_.trigger(350);
       pushMode<MKSPEC<BCMenuSpec>::BCScrollPresetsMenu>();
     }
@@ -1498,7 +1505,6 @@ public:
 
   void Loop() override {
     PropBase::Loop();
-    DetectMenuTurn();
     DetectTwist();
     Vec3 mss = fusor.mss();
     sound_library_.Poll(wav_player);
@@ -1590,57 +1596,47 @@ public:
     if (scroll_presets_beep_delay_timer_.isTimerExpired()) {
         SaberBase::DoEffect(EFFECT_NEWFONT, 0);
     }
-    if (twist_delay_timer_.isTimerExpired()) {
-      DoSavedTwist();
-    }
   }  // Loop()
 
 #ifdef SPEAK_BLADE_ID
   void SpeakBladeID(float id) override {
-    if (SFX_mnum) {
-      sound_library_v2.SayBlade();
-      sound_library_.SayNumber(id, SAY_WHOLE);
-    } else {
-      PVLOG_NORMAL << "** No mnum.wav number prompts found.\n";
-      beeper.Beep(0.25, 2000.0);
-    }
+    sound_library_v2.SayBlade();
+    sound_library_.SayNumber(id, SAY_WHOLE);
   }
 #endif
 
-  void DetectMenuTurn() {
-    float a = fusor.angle2() - current_twist_angle_;
-    if (isPointingUp()) return;
-    // Keep the rotational angle within range of 
-    // -180 to 180 degrees in terms of radians.
-    if (a > M_PI) a-= M_PI * 2;
-    if (a < -M_PI) a+= M_PI * 2;
-
-    if (a < -M_PI / 3) {
-      CheckSavedTwist(EVENT_TWIST_LEFT);
-      current_twist_angle_ = fusor.angle2();
-    } else if (a > M_PI / 3) {
-      CheckSavedTwist(EVENT_TWIST_RIGHT);
-      current_twist_angle_ = fusor.angle2();
+void DetectTwist() {
+  bool process = DetectTwistStrokes();
+  if (process) {
+    if (ProcessTwistEvents()) {
+      // Normal twist event happened, clear strokes
+      strokes[NELEM(strokes)-1].type = UNKNOWN_GESTURE;
+      strokes[NELEM(strokes)-2].type = UNKNOWN_GESTURE;
+      return;
     }
   }
+  DoSavedTwist();
+}
 
-  void CheckSavedTwist(uint32_t event) {
-    if (!saved_twist_) {
-      // Save the current twist and start the timer if no twist is saved
-      saved_twist_ = event;
-      twist_delay_timer_.trigger(NORMAL_TWIST_TIMEOUT);
-    PVLOG_DEBUG << "**** Saving twist event: " << (event == EVENT_TWIST_LEFT ? "TWIST LEFT" : "TWIST RIGHT") << ". Starting timer.\n";
-    }
+void DoSavedTwist() {
+  Stroke* stroke = &strokes[NELEM(strokes)-1];
+  switch (stroke->type) {
+    case TWIST_LEFT:
+    case TWIST_RIGHT:
+      if (stroke->end_millis == 0) return;
+      if (stroke->length() < 100) return;
+      if (millis() - stroke->end_millis < 300) return;
+      // Add another check for separation from previous stroke?
+      break;
+    default:
+      return;
   }
-
-  void DoSavedTwist() {
-    // Trigger the saved twist after timeout
-    PVLOG_DEBUG << (saved_twist_ == EVENT_TWIST_LEFT ? "**** Doing SAVED TWIST LEFT\n" : "Doing SAVED TWIST RIGHT\n");
-    Event(BUTTON_NONE, (EVENT)saved_twist_);
-    // Clear the twist state and reset strokes to prevent Normal Twist after USER twist
-    DoGesture(TWIST_CLOSE);
-    saved_twist_ = 0;
-  }
+  // Emit single twist event
+  Event(BUTTON_NONE, stroke->type == TWIST_LEFT ? EVENT_TWIST_LEFT : EVENT_TWIST_RIGHT);
+  PVLOG_DEBUG << (stroke->type == TWIST_LEFT ? "EVENT_TWIST_LEFT" : "EVENT_TWIST_RIGHT") << "\n";
+  // Prevent re-triggering
+  stroke->type = UNKNOWN_GESTURE;
+}
 
   void BeepEnterFeature() {
     beeper.Beep(0.05, 2000);
@@ -1746,13 +1742,13 @@ public:
       sound_library_.SayNumber(battery_monitor.battery(), SAY_DECIMAL);
       sound_library_.SayVolts();
       PVLOG_NORMAL << "Battery Voltage: " << battery_monitor.battery() << "\n";
-      speaking_ = true;
+      is_speaking_ = true;
       SaberBase::DoEffect(EFFECT_BATTERY_LEVEL, 0);
     } else {
       sound_library_.SayNumber(battery_monitor.battery_percent(), SAY_WHOLE);
       sound_library_.SayPercent();
       PVLOG_NORMAL << "Battery Percentage: " <<battery_monitor.battery_percent() << "%\n";
-      speaking_ = true;
+      is_speaking_ = true;
       SaberBase::DoEffect(EFFECT_BATTERY_LEVEL, 0);
     }
   }
@@ -1847,9 +1843,7 @@ public:
   void ToggleSpamBlast() {
     spam_blast_ = !spam_blast_;
     PVLOG_NORMAL << (spam_blast_ ? "** Entering" : "** Exiting") << " Spam Blast Mode\n";
-    if (!hybrid_font.PlayPolyphonic(&SFX_mzoom)) {
-      spam_blast_ ? BeepEnterFeature() : BeepExitFeature();
-    }
+    sound_library_.SayZoomingIn();
   }
 
   void ToggleBattleMode() {
@@ -1858,7 +1852,7 @@ public:
     PVLOG_NORMAL << (battle_mode_ ? "** Entering" : "** Exiting") << " Battle Mode\n";
     if (battle_mode_) {
       if (!hybrid_font.PlayPolyphonic(&SFX_bmbegin)) {
-        hybrid_font.DoEffect(EFFECT_FORCE, 0);
+        hybrid_font.PlayPolyphonic(&SFX_force);
       }
     } else {
       if (!hybrid_font.PlayPolyphonic(&SFX_bmend)) {
@@ -1897,9 +1891,9 @@ public:
     // Add in all non-controlled blades, effectively excluding the "other" blade.
     target_blade = target_blade | ~controlled_blades_;
     if (SaberBase::OnBlades().off()) {
-      PVLOG_DEBUG << "**** No blades are currently ON, turning on the " 
+      PVLOG_DEBUG << "**** No blades are currently ON, turning on the "
                    << (target_blade[BC_MAIN_BLADE] ? "MAIN" : "SECOND")
-                   << " blade and all others, excluding the " 
+                   << " blade and all others, excluding the "
                    << (target_blade[BC_MAIN_BLADE] ? "SECOND" : "MAIN")
                    << " blade\n";
       if (isPointingUp() || muted_) {
@@ -1908,7 +1902,7 @@ public:
         On(EffectLocation(0, target_blade));
       }
     } else {
-      PVLOG_DEBUG << "**** Turning on the " 
+      PVLOG_DEBUG << "**** Turning on the "
                    << (target_blade[BC_MAIN_BLADE] ? "MAIN" : "SECOND")
                    << " blade\n";
       SaberBase::TurnOn(EffectLocation(0, target_blade));
@@ -1927,8 +1921,8 @@ public:
       muted_ = false;
     } else {
       // Only Turn OFF this blade, leave the other one ON.
-      PVLOG_DEBUG << "**** Turning OFF only the " 
-                   << (target_blade[BC_MAIN_BLADE] ? "MAIN" : "SECOND") 
+      PVLOG_DEBUG << "**** Turning OFF only the "
+                   << (target_blade[BC_MAIN_BLADE] ? "MAIN" : "SECOND")
                    << " blade\n";
       SaberBase::TurnOff(off_type, EffectLocation(0, target_blade));
     }
@@ -1980,7 +1974,7 @@ public:
       v = diff.len();
   #endif
     }
-    // If we're spinning the saber or if loud sounds are playing, 
+    // If we're spinning the saber or if loud sounds are playing,
     // require a stronger acceleration to activate the clash.
     if (v > (CLASH_THRESHOLD_G * (1
           + fusor.gyro().len() / 500.0
@@ -2042,16 +2036,101 @@ public:
 
 #endif  // BC_DUAL_BLADES
 
+  bool use_fake_id_ = false;
+  float fake_id_ = 0;
+  size_t best_config_before_faking_ = SIZE_MAX;
+
+#ifdef BLADE_ID_SCAN_MILLIS
+  float id(bool announce = false) override {
+    if (use_fake_id_) {
+      float real_id = PropBase::id(announce);
+      size_t real_best_config = FindBestConfigForId(real_id);
+
+      if (real_best_config != best_config_before_faking_) {
+        // Real blade has changed, exit manual mode
+        use_fake_id_ = false;
+        find_blade_again_pending_ = true;
+        return real_id;
+      }
+      return fake_id_;
+    }
+    return PropBase::id(announce);
+  }
+
+  int GetNoBladeLevelBefore() override {
+    int ohm;
+    if (best_config_before_faking_ != SIZE_MAX) {
+      ohm = blades[best_config_before_faking_].ohm;
+      best_config_before_faking_ = SIZE_MAX;
+    } else {
+      ohm = current_config->ohm;
+    }
+    return ohm / NO_BLADE;
+  }
+
+#else
+  float id(bool announce = false) override {
+    return use_fake_id_ ? fake_id_ : PropBase::id(announce);
+  }
+#endif  // BLADE_ID_SCAN_MILLIS
+
+  void TriggerBladeID() {
+    use_fake_id_ = false;
+    best_config_before_faking_ = SIZE_MAX;
+    FindBladeAgain();
+    PlayArraySound();
+  }
+
+  void NextBladeArray() {
+    if (!use_fake_id_) best_config_before_faking_ = current_config - blades;
+    size_t next_array = (current_config - blades + 1) % NELEM(blades);
+    fake_id_ = blades[next_array].ohm;
+    use_fake_id_ = true;
+
+    FindBladeAgain();
+    PlayArraySound();
+  }
+
+  void PlayArraySound() {
+    if (SFX_array) {
+      SFX_array.Select(current_config - blades);
+      hybrid_font.PlayPolyphonic(&SFX_array);
+    } else if (!hybrid_font.PlayPolyphonic(&SFX_bladein)) {
+      hybrid_font.PlayCommon(&SFX_font);
+    }
+  }
+
+  bool Parse(const char *cmd, const char* arg) override {
+    if (PropBase::Parse(cmd, arg)) return true;
+
+    if (!strcmp(cmd, "twist")) {
+        Event(BUTTON_NONE, EVENT_TWIST);
+        return true;
+    }
+    if (!strcmp(cmd, "left")) {
+        Event(BUTTON_NONE, EVENT_TWIST_LEFT);
+        return true;
+    }
+    if (!strcmp(cmd, "right")) {
+        Event(BUTTON_NONE, EVENT_TWIST_RIGHT);
+        return true;
+    }
+    return false;
+  }
+
   RefPtr<BufferedWavPlayer> wav_player;
 
-  bool Event2(enum BUTTON button, EVENT event, uint32_t modifiers) override {
-
-    if (event == EVENT_TWIST) {
-      PVLOG_DEBUG << "**** Detected EVENT_TWIST in Event2, stopping timer and resetting saved twist.\n";
-      saved_twist_ = 0;
-      twist_delay_timer_.stopTimer();
+#ifdef BC_BUTTON_CLICKER
+  bool Event(enum BUTTON button, EVENT event) override {
+    // Play clicker only when saber is OFF and a button is PRESSED
+    if (!IsOn() && event == EVENT_PRESSED) {
+      hybrid_font.PlayPolyphonic(&SFX_press);
     }
+    return PropBase::Event(button, event);
+  }
+#endif
 
+  bool Event2(enum BUTTON button, EVENT event, uint32_t modifiers) override {
     switch (EVENTID(button, event, modifiers)) {
       // storage of unused cases
       case EVENTID(BUTTON_AUX2, EVENT_PRESSED, MODE_ON):
@@ -2276,7 +2355,7 @@ any # of buttons
 // Turn Second Blade ON First Muted
 #if NUM_BUTTONS == 3
       case EVENTID(BUTTON_AUX2, EVENT_SECOND_SAVED_CLICK_SHORT, MODE_OFF):
-#else 
+#else
       case EVENTID(BUTTON_AUX, EVENT_SECOND_SAVED_CLICK_SHORT, MODE_OFF):
 #endif
         TurnSecondBladeOnMuted();
@@ -2400,7 +2479,7 @@ any # of buttons
 
 // Stab
       case EVENTID(BUTTON_NONE, EVENT_THRUST, MODE_ON):
-        if (on_pending_ || millis() - saber_on_time_ < 2000) return false; 
+        if (on_pending_ || millis() - saber_on_time_ < 2000) return false;
         SaberBase::SetClashStrength(2.0);
         SaberBase::DoStab();
         return true;
@@ -2547,9 +2626,26 @@ any # of buttons
         return true;
 #endif  // BC_FORCE_PUSH
 
+// Manually cycle to Next Blade Array
+  case EVENTID(BUTTON_POWER, EVENT_FOURTH_HELD_MEDIUM, MODE_OFF):
+    PVLOG_NORMAL << "**** BUTTON EVENT Manually Cycling Blade Array\n";
+    NextBladeArray();
+    return true;
+
+// Manually trigger Blade ID scan
+#if (NUM_BUTTONS != 1) || !defined(BC_DUAL_BLADES)  // only not available for 1 btn dual blades.
+  case EVENTID(BUTTON_POWER, EVENT_FOURTH_CLICK_LONG, MODE_OFF):
+    PVLOG_NORMAL << "**** BUTTON EVENT Manually triggering native Blade ID\n";
+    TriggerBladeID();
+    return true;
+#endif
+
 // Enter OS System Menu
 // Enter BC Blade Length Mode
       case EVENTID(BUTTON_POWER, EVENT_SECOND_HELD_MEDIUM, MODE_OFF):
+#ifdef ENABLE_IDLE_SOUND
+        hybrid_font.StopIdleSound();
+#endif
 #ifdef MENU_SPEC_TEMPLATE
         PVLOG_NORMAL << "** Entering ProffieOS Menu System\n";
         EnterMenu();
@@ -2619,13 +2715,7 @@ any # of buttons
         if (spam_blast_) return false;
         PVLOG_NORMAL << "** Reverted Color Variation to uploaded config color. Variation = " << SaberBase::GetCurrentVariation() << "\n";
         SaberBase::SetVariation(0);
-        if (SFX_mnum) {
-          sound_library_v2.SayResetToDefaultColor();
-        } else {
-          beeper.Beep(0.20, 2000.0);
-          beeper.Beep(0.20, 1414.2);
-          beeper.Beep(0.20, 1000.0);
-        }
+        sound_library_v2.SayResetToDefaultColor();
         return true;
 
 // Quote - NOT pointing DOWN
@@ -2641,45 +2731,90 @@ any # of buttons
         return true;
 
 // User Effects a.k.a. "Special Abilities" ©Fett263
+#if NUM_BUTTONS == 1
+
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_POWER):
+        if (isPointingUp()) {
+          PVLOG_DEBUG << "**** EFFECT_USER3 **\n";
+          SaberBase::DoEffect(EFFECT_USER3, 0);
+        } else {
+          PVLOG_DEBUG << "**** EFFECT_USER1 **\n";
+          SaberBase::DoEffect(EFFECT_USER1, 0);
+        }
+        return true;
+
       case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_POWER):
+        if (isPointingUp()) {
+          PVLOG_DEBUG << "**** EFFECT_USER4 **\n";
+          SaberBase::DoEffect(EFFECT_USER4, 0);
+        } else {
+          PVLOG_DEBUG << "**** EFFECT_USER2 **\n";
+          SaberBase::DoEffect(EFFECT_USER2, 0);
+        }
+        return true;
+
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_POWER):
+        if (isPointingUp()) {
+          PVLOG_DEBUG << "**** EFFECT_USER7 **\n";
+          SaberBase::DoEffect(EFFECT_USER7, 0);
+        } else {
+          PVLOG_DEBUG << "**** EFFECT_USER5 **\n";
+          SaberBase::DoEffect(EFFECT_USER5, 0);
+        }
+        return true;
+
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_POWER):
+        if (isPointingUp()) {
+          PVLOG_DEBUG << "**** EFFECT_USER8 **\n";
+          SaberBase::DoEffect(EFFECT_USER8, 0);
+        } else {
+          PVLOG_DEBUG << "**** EFFECT_USER6 **\n";
+          SaberBase::DoEffect(EFFECT_USER6, 0);
+        }
+        return true;
+
+# else  // more than 1-button
+
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_POWER):
         PVLOG_DEBUG << "**** EFFECT_USER1 **\n";
         SaberBase::DoEffect(EFFECT_USER1, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_POWER):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_POWER):
         PVLOG_DEBUG << "**** EFFECT_USER2 **\n";
         SaberBase::DoEffect(EFFECT_USER2, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_AUX):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_AUX):
         PVLOG_DEBUG << "**** EFFECT_USER3 **\n";
         SaberBase::DoEffect(EFFECT_USER3, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_ON | BUTTON_AUX):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_ON | BUTTON_AUX):
         PVLOG_DEBUG << "**** EFFECT_USER4 **\n";
         SaberBase::DoEffect(EFFECT_USER4, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_POWER):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_POWER):
         PVLOG_DEBUG << "**** EFFECT_USER5 **\n";
         SaberBase::DoEffect(EFFECT_USER5, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_POWER):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_POWER):
         PVLOG_DEBUG << "**** EFFECT_USER6 **\n";
         SaberBase::DoEffect(EFFECT_USER6, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_AUX):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_AUX):
         PVLOG_DEBUG << "**** EFFECT_USER7 **\n";
         SaberBase::DoEffect(EFFECT_USER7, 0);
         return true;
 
-      case EVENTID(BUTTON_NONE, EVENT_TWIST_RIGHT, MODE_OFF | BUTTON_AUX):
+      case EVENTID(BUTTON_NONE, EVENT_TWIST_LEFT, MODE_OFF | BUTTON_AUX):
         PVLOG_DEBUG << "**** EFFECT_USER8 **\n";
         SaberBase::DoEffect(EFFECT_USER8, 0);
         return true;
+#endif  // NUM_BUTTONS == 1
 
 // Blade Detect
 #ifdef BLADE_DETECT_PIN
@@ -2730,8 +2865,8 @@ any # of buttons
         return;
       // On-Demand Battery Level
       case EFFECT_BATTERY_LEVEL:
-        if (speaking_) {
-          speaking_ = false;
+        if (is_speaking_) {
+          is_speaking_ = false;
           return;
         }
         if (!hybrid_font.PlayPolyphonic(&SFX_battery)) {
@@ -2748,7 +2883,7 @@ any # of buttons
       case EFFECT_IGNITION:
         saber_on_time_ = millis();
         return;
-      case EFFECT_TRANSITION_SOUND: 
+      case EFFECT_TRANSITION_SOUND:
         if (SFX_tr) hybrid_font.PlayPolyphonic(&SFX_tr);
         return;
 
@@ -2771,7 +2906,7 @@ any # of buttons
       SaberBase::DoEffect(EFFECT_CLASH, EffectLocation(0, GetBladeAboveHorizon()));
 #else
       SaberBase::DoClash();
-#endif 
+#endif
         }
       }
     }
@@ -2782,16 +2917,13 @@ private:
   DelayTimer mute_mainBlade_delay_timer_;
   DelayTimer mute_secondBlade_delay_timer_;
   DelayTimer scroll_presets_beep_delay_timer_;
-  DelayTimer twist_delay_timer_;
 
-  float current_twist_angle_ = 0.0;
-  uint32_t saved_twist_ = 0;
   bool battle_mode_ = false;
   bool auto_lockup_on_ = false;
   bool auto_melt_on_ = false;
   bool sequential_quote_ = false;
   bool spam_blast_ = false;
-  bool speaking_ = false;  // Don't play battery.wav when doing Spoken Battery Level
+  bool is_speaking_ = false;  // Don't play battery.wav when doing Spoken Battery Level
   bool muted_ = false;
   bool forward_stab_ = false;
 
